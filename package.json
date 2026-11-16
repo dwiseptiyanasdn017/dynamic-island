@@ -1,8 +1,8 @@
 {
   "name": "dynamic-island-windows",
   "productName": "Dynamic Island",
-  "version": "1.5.1",
-  "description": "Dynamic Island yang bisa dikustomisasi untuk Windows: jam, baterai, jadwal mengajar, musik, pengingat, timer, pintasan.",
+  "version": "1.6.0",
+  "description": "Dynamic Island yang bisa dikustomisasi untuk Windows: jam, baterai, jadwal mengajar, musik, pengingat, timer, pintasan, widget desktop.",
   "main": "main.js",
   "author": "Dwi Septiyana",
   "license": "MIT",
@@ -38,6 +38,9 @@
       "kelas.js",
       "shared.js",
       "karakter.js",
+      "widget.html",
+      "widget.css",
+      "widget.js",
       "assets/**"
     ],
     "win": {

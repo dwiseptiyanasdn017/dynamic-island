@@ -86,6 +86,7 @@
     <a data-p="pengingat">Pengingat</a>
     <a data-p="sholat">Jadwal Sholat</a>
     <a data-p="cuaca">Cuaca</a>
+    <a data-p="widget">Widget Desktop</a>
     <a data-p="pintasan">Pintasan</a>
     <a data-p="timer">Timer</a>
     <a data-p="umum">Umum</a>
@@ -280,6 +281,22 @@
           <button type="button" id="cu-samakan" style="margin-top:10px">Samakan dengan lokasi jadwal sholat</button></div>
       </div>
 
+      <!-- WIDGET DESKTOP -->
+      <div class="pane" id="p-widget">
+        <h2>Widget Desktop</h2>
+        <p class="hint">Kartu di desktop yang selalu terlihat tanpa membuka pil. Warnanya mengikuti tema di Tampilan. Seret judul kartu untuk memindahkannya; posisinya diingat.</p>
+        <div class="card grid">
+          <span>Tampilkan widget di desktop</span><label class="chk"><input type="checkbox" id="wg-aktif"> Aktif</label>
+          <span>Kunci posisi (tidak bisa diseret)</span><label class="chk"><input type="checkbox" id="wg-kunci"> Kunci</label>
+          <span>Ketebalan latar (opasitas %)</span><span><input type="range" id="wg-op" min="40" max="100" step="5"> <b id="wgOpVal"></b></span>
+        </div>
+        <div class="card">
+          <b>Kartu yang tersedia</b>
+          <p class="hint" style="margin:6px 0 0">🕌⛅ <b>Sholat &amp; Cuaca</b>: suhu, kondisi, perkiraan 6 jam ke depan, 5 waktu sholat, dan hitung mundur ke sholat berikutnya. Isinya mengikuti pengaturan di halaman Jadwal Sholat dan Cuaca.</p>
+          <button type="button" id="wg-reset" style="margin-top:10px">Kembalikan widget ke pojok kanan atas</button>
+        </div>
+      </div>
+
       <!-- PINTASAN -->
       <div class="pane" id="p-pintasan">
         <h2>Pintasan</h2>
@@ -324,7 +341,7 @@
         </div>
         <div class="card">
           <b>Pintasan keyboard</b>
-          <p class="hint" style="margin:6px 0 0"><code>Ctrl+Alt+D</code> tampilkan/sembunyikan pulau · <code>Ctrl+Alt+S</code> buka pengaturan · <code>Ctrl+Alt+K</code> buka Panel Kelas</p>
+          <p class="hint" style="margin:6px 0 0"><code>Ctrl+Alt+D</code> tampilkan/sembunyikan pulau · <code>Ctrl+Alt+S</code> buka pengaturan · <code>Ctrl+Alt+K</code> buka Panel Kelas · <code>Ctrl+Alt+W</code> tampilkan/sembunyikan widget desktop</p>
         </div>
         <div class="card" style="display:flex;gap:8px;flex-wrap:wrap">
           <button id="exportBtn">Ekspor pengaturan (.json)</button>

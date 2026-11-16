@@ -16,6 +16,12 @@ Pil hitam di atas tengah layar, mirip Dynamic Island iPhone. Arahkan kursor ke p
 - **Pengingat**: pil membesar, berdenyut, dan berbunyi beberapa menit sebelum pelajaran mulai, saat mulai, dan saat selesai. Ada juga pengingat khusus (rapat, piket, setor nilai)
 - **Pengaturan**: warna dan tema, lebar, posisi, cara membuka (hover atau klik), jadwal, pengingat, pintasan, dan autostart
 
+## Widget desktop (versi 1.6)
+- **Kartu Sholat & Cuaca** menempel di desktop (bawaan: pojok kanan atas), tidak menutupi jendela lain. Isinya: suhu dan kondisi cuaca, perkiraan 6 jam ke depan (jam yang kemungkinan hujannya ≥ 50% diberi warna biru), 5 waktu sholat hari ini, dan hitung mundur ke sholat berikutnya. Selama 15 menit setelah masuk waktu, kartu menampilkan "Waktu … telah masuk". Hari Jumat, Dzuhur ditulis "Jumat".
+- Warna mengikuti tema pil. Seret judul kartu untuk memindahkan; posisi diingat. Atur di **Pengaturan → Widget Desktop** (aktif/nonaktif, kunci posisi, ketebalan latar, kembalikan ke pojok).
+- `Ctrl+Alt+W` atau menu tray untuk menampilkan/menyembunyikan widget. Bila widget hilang setelah menekan `Win+D`, tampilkan lagi lewat `Ctrl+Alt+W`.
+- Saat offline, cuaca memakai data terakhir (ditandai "Data terakhir jj:mm"); jadwal sholat tetap jalan karena dihitung di laptop.
+
 ## Beranda & logo pintasan (versi 1.4)
 - **Tata letak Beranda** bisa dipilih seperti tema (Pengaturan → Beranda): **Kotak Widget**, **Jam + Daftar**, **Minimalis**, atau **Klasik**. Kotak yang tampil (jam, pelajaran, sholat, cuaca, baterai, kehadiran kelas dari BukuKelas) bisa dicentang dan diurutkan sendiri dengan ▲ ▼.
 - **Pintasan memakai logo asli**: ikon program dan folder diambil dari Windows (misalnya logo Word dan Excel), dan situs web memakai logonya sendiri. Logo disimpan di laptop agar tetap tampil saat offline.

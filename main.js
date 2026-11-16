@@ -16,6 +16,7 @@ const WIN_H = 380;
 let island = null;
 let settingsWin = null;
 let kelasWin = null;
+let widget = null;
 let bk = null;
 let tray = null;
 let mediaProc = null;
@@ -66,6 +67,7 @@ function applyConfig() {
   const u = config.umum || {};
   if (u.fiturMedia === false && mediaProc) mediaProc.kill(); else if (u.fiturMedia !== false && !mediaProc && island) startMedia();
   if (u.fiturKontrol === false && kontrolProc) kontrolProc.kill(); else if (u.fiturKontrol !== false && !kontrolProc && island) startKontrol();
+  aturWidget();
   broadcast('cfg:updated', config);
 }
 function broadcast(ch, data) {
@@ -232,6 +234,71 @@ function openKelas(arg = {}) {
   kelasWin.loadFile('kelas.html', { query: { buka: JSON.stringify(arg) } });
   kelasWin.on('closed', () => { kelasWin = null; });
 }
+
+// ---------- Widget desktop ----------
+// Jendela transparan di belakang jendela lain (tidak selalu di atas), bisa diseret lewat judul kartu.
+const WGT_W = 316;
+function posisiWidget() {
+  const p = (config.widget || {}).posisi;
+  if (p && Number.isFinite(p.x) && Number.isFinite(p.y)) {
+    const wa = screen.getDisplayMatching({ x: p.x, y: p.y, width: WGT_W, height: 200 }).workArea;
+    return { x: clamp(p.x, wa.x, wa.x + wa.width - WGT_W), y: clamp(p.y, wa.y, wa.y + wa.height - 120) };
+  }
+  const wa = screen.getPrimaryDisplay().workArea;  // bawaan: pojok kanan atas
+  return { x: wa.x + wa.width - WGT_W - 12, y: wa.y + 12 };
+}
+function createWidget() {
+  if (widget || quitting) return;
+  const { x, y } = posisiWidget();
+  widget = new BrowserWindow({
+    x, y, width: WGT_W, height: 320,
+    frame: false, transparent: true, backgroundColor: '#00000000',
+    resizable: false, minimizable: false, maximizable: false, fullscreenable: false,
+    skipTaskbar: true, hasShadow: false, alwaysOnTop: false, show: false,
+    title: 'Widget Desktop',
+    webPreferences: { preload: path.join(__dirname, 'preload.js'), contextIsolation: true, nodeIntegration: false }
+  });
+  widget.loadFile('widget.html');
+  widget.once('ready-to-show', () => widget && widget.showInactive());
+  widget.on('moved', () => {
+    if (!widget) return;
+    const [nx, ny] = widget.getPosition();
+    config.widget = { ...(config.widget || {}), posisi: { x: nx, y: ny } };
+    saveConfigFile();
+  });
+  widget.on('close', e => { if (!quitting) e.preventDefault(); });
+  widget.on('closed', () => { widget = null; });
+}
+function aturWidget() {
+  const aktif = (config.widget || {}).aktif !== false;
+  if (aktif && !widget) createWidget();
+  else if (!aktif && widget) { widget.destroy(); widget = null; }
+}
+function tampilkanWidget() {
+  config.widget = { ...(config.widget || {}), aktif: true };
+  saveConfigFile();
+  if (!widget) createWidget(); else { const { x, y } = posisiWidget(); widget.setPosition(x, y); widget.showInactive(); }
+  broadcast('cfg:updated', config);
+}
+function sembunyikanWidget() {
+  config.widget = { ...(config.widget || {}), aktif: false };
+  saveConfigFile(); aturWidget(); broadcast('cfg:updated', config);
+}
+ipcMain.on('widget:tinggi', (e, h) => {
+  if (!widget || !angka(h)) return;
+  const tinggi = clamp(Math.ceil(Number(h)), 60, 1000);
+  const [w, lama] = widget.getSize();
+  if (lama === tinggi) return;
+  // jendela berukuran tetap mengabaikan setSize di sebagian sistem, jadi buka kuncinya sebentar
+  widget.setResizable(true);
+  widget.setSize(w, tinggi);
+  widget.setResizable(false);
+});
+ipcMain.on('widget:reset', () => {
+  if (config.widget) delete config.widget.posisi;
+  saveConfigFile();
+  if (widget) { const { x, y } = posisiWidget(); widget.setPosition(x, y); widget.showInactive(); }
+});
 
 // ---------- BukuKelas ----------
 async function initBukuKelas() {
@@ -527,10 +594,13 @@ ipcMain.handle('cfg:get', () => config);
 ipcMain.handle('cfg:default', () => structuredClone(DEFAULT));
 ipcMain.handle('cfg:save', (e, next) => {
   const posisi = config.tampilan.posisi; // posisi pil hanya diubah lewat seret / tombol kembalikan
+  const posWidget = (config.widget || {}).posisi;
   if (next && next.tampilan) next.tampilan.karakterKustom = config.tampilan.karakterKustom || [];
   const lokasiLama = JSON.stringify(config.cuaca || {});
   config = merge(structuredClone(DEFAULT), next);
   if (posisi) config.tampilan.posisi = posisi; else delete config.tampilan.posisi;
+  config.widget = { ...(config.widget || {}) };
+  if (posWidget) config.widget.posisi = posWidget; else delete config.widget.posisi;
   if (JSON.stringify(config.cuaca || {}) !== lokasiLama) setTimeout(ambilCuaca, 500);
   saveConfigFile();
   applyConfig();
@@ -573,6 +643,8 @@ if (!app.requestSingleInstanceLock()) {
     tray.setContextMenu(Menu.buildFromTemplate([
       { label: 'Tampilkan / Sembunyikan  (Ctrl+Alt+D)', click: toggleIsland },
       { label: 'Kembalikan pil ke tengah atas', click: resetPosisi },
+      { label: 'Widget desktop: tampilkan  (Ctrl+Alt+W)', click: tampilkanWidget },
+      { label: 'Widget desktop: sembunyikan', click: sembunyikanWidget },
       { label: 'Panel Kelas…  (Ctrl+Alt+K)', click: () => openKelas() },
       { label: 'Pengaturan…  (Ctrl+Alt+S)', click: openSettings },
       { type: 'separator' },
@@ -583,6 +655,7 @@ if (!app.requestSingleInstanceLock()) {
     globalShortcut.register('Control+Alt+D', toggleIsland);
     globalShortcut.register('Control+Alt+S', openSettings);
     globalShortcut.register('Control+Alt+K', () => openKelas());
+    globalShortcut.register('Control+Alt+W', () => (widget && widget.isVisible() ? sembunyikanWidget() : tampilkanWidget()));
 
     screen.on('display-metrics-changed', placeIsland);
     screen.on('display-added', placeIsland);

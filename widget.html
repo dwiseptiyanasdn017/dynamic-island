@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:">
+  <title>Widget Desktop</title>
+  <link rel="stylesheet" href="widget.css">
+</head>
+<body>
+  <div id="tumpuk">
+    <!-- Kartu: Sholat & Cuaca -->
+    <section class="kartu" id="k-sc">
+      <header class="seret">
+        <div>
+          <div id="sc-tgl" class="judul"></div>
+          <div id="sc-lok" class="muted kecil"></div>
+        </div>
+        <button id="sc-segar" class="ikon" title="Perbarui cuaca">⟳</button>
+      </header>
+
+      <div id="cu">
+        <div id="cu-kini"></div>
+        <div id="cu-jam"></div>
+      </div>
+
+      <div id="sh">
+        <div id="sh-next"></div>
+        <div id="sh-list"></div>
+      </div>
+    </section>
+  </div>
+  <script src="shared.js"></script>
+  <script src="widget.js"></script>
+</body>
+</html>

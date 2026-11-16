@@ -53,6 +53,8 @@ function isiForm() {
   setVal('sh-aktif', sh.aktif !== false); setVal('sh-menit', sh.menitSebelum ?? 10); setVal('sh-adzan', sh.saatAdzan !== false);
   setVal('sh-lat', sh.lat ?? SH_BAWAAN.lat); setVal('sh-lon', sh.lon ?? SH_BAWAAN.lon);
   tampilSholat();
+  const wg = cfg.widget || {};
+  setVal('wg-aktif', wg.aktif !== false); setVal('wg-kunci', !!wg.kunci); setVal('wg-op', wg.transparansi || 90);
   setVal('bkUrl', (cfg.bukukelas || {}).url || '');
   setVal('bkKey', (cfg.bukukelas || {}).anonKey || '');
   labelRange();
@@ -61,8 +63,9 @@ function isiForm() {
 function labelRange() {
   $('#lebarVal').textContent = $('#lebarRingkas').value + ' px';
   $('#opVal').textContent = $('#transparansi').value + '%';
+  $('#wgOpVal').textContent = $('#wg-op').value + '%';
 }
-['lebarRingkas', 'transparansi'].forEach(id => $('#' + id).addEventListener('input', labelRange));
+['lebarRingkas', 'transparansi', 'wg-op'].forEach(id => $('#' + id).addEventListener('input', labelRange));
 
 // ---------- Galeri tema ----------
 let temaId = 'hitam';
@@ -352,6 +355,7 @@ function kumpulkan() {
   cfg.umum.autostart = getVal('autostart');
   cfg.umum.sembunyiPresentasi = getVal('sembunyiPresentasi');
   cfg.umum.updateOtomatis = getVal('updateOtomatis'); cfg.umum.fiturMedia = getVal('fiturMedia'); cfg.umum.fiturKontrol = getVal('fiturKontrol');
+  cfg.widget = { ...(cfg.widget || {}), aktif: getVal('wg-aktif'), kunci: getVal('wg-kunci'), transparansi: getVal('wg-op') || 90 };
   cfg.sholat = { aktif: getVal('sh-aktif'), menitSebelum: getVal('sh-menit'), saatAdzan: getVal('sh-adzan'), lat: getVal('sh-lat'), lon: getVal('sh-lon') };
   cfg.bukukelas = { ...(cfg.bukukelas || {}), url: getVal('bkUrl').trim(), anonKey: getVal('bkKey').trim() };
   cfg.pengingatKhusus = $$('#khususBody tr').map(tr => ({
@@ -410,6 +414,7 @@ function tampilSholat() {
 }
 ['sh-lat', 'sh-lon'].forEach(id => $('#' + id).addEventListener('input', tampilSholat));
 $('#sh-bawaan').addEventListener('click', () => { setVal('sh-lat', SH_BAWAAN.lat); setVal('sh-lon', SH_BAWAAN.lon); tampilSholat(); });
+$('#wg-reset').addEventListener('click', () => window.api.widgetReset());
 $('#cu-samakan').addEventListener('click', () => { setVal('cu-lat', getVal('sh-lat')); setVal('cu-lon', getVal('sh-lon')); });
 $('#resetPosisi').addEventListener('click', () => { window.api.resetPosisi(); status('Pil dikembalikan ke tengah atas'); });
 

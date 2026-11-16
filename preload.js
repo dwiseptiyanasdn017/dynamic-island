@@ -23,6 +23,8 @@ contextBridge.exposeInMainWorld('api', {
   cuaca: () => ipcRenderer.invoke('cuaca'),
   onCuaca: cb => ipcRenderer.on('cuaca', (e, c) => cb(c)),
   segarkanCuaca: () => ipcRenderer.send('cuaca:segarkan'),
+  widgetTinggi: h => ipcRenderer.send('widget:tinggi', h),
+  widgetReset: () => ipcRenderer.send('widget:reset'),
   versi: () => ipcRenderer.invoke('update:status'),
   onUpdate: cb => ipcRenderer.on('update:status', (e, s) => cb(s)),
   onUpdateSiap: cb => ipcRenderer.on('update:siap', (e, v) => cb(v)),
