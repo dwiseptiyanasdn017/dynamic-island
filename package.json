@@ -1,0 +1,72 @@
+{
+  "name": "dynamic-island-windows",
+  "productName": "Dynamic Island",
+  "version": "1.5.0",
+  "description": "Dynamic Island yang bisa dikustomisasi untuk Windows: jam, baterai, jadwal mengajar, musik, pengingat, timer, pintasan.",
+  "main": "main.js",
+  "author": "Dwi Septiyana",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder --win",
+    "rilis": "electron-builder --win --publish always"
+  },
+  "devDependencies": {
+    "electron": "^45.3.2",
+    "electron-builder": "^26.0.0"
+  },
+  "build": {
+    "appId": "id.dwi.dynamicisland",
+    "productName": "Dynamic Island",
+    "asarUnpack": [
+      "media.ps1",
+      "kontrol.ps1"
+    ],
+    "files": [
+      "main.js",
+      "preload.js",
+      "bukukelas.js",
+      "media.ps1",
+      "kontrol.ps1",
+      "default-config.json",
+      "island.html",
+      "island.css",
+      "island.js",
+      "settings.html",
+      "settings.js",
+      "kelas.html",
+      "kelas.js",
+      "shared.js",
+      "karakter.js",
+      "assets/**"
+    ],
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "icon": "build/icon.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "artifactName": "Dynamic-Island-Setup-${version}.${ext}"
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "dwiseptiyanasdn017",
+        "repo": "dynamic-island",
+        "releaseType": "release"
+      }
+    ]
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.119.0",
+    "electron-updater": "^6.8.11"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dwiseptiyanasdn017/dynamic-island.git"
+  }
+}

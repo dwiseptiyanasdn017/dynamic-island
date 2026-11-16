@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:">
+  <title>Pengaturan Dynamic Island</title>
+  <style>
+    :root { --bg:#f6f3ee; --card:#fff; --line:#e4ddd2; --ink:#2b2620; --muted:#7a7064; --acc:#5f7f52; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font: 14px "Segoe UI", system-ui, sans-serif; background: var(--bg); color: var(--ink); display: flex; height: 100vh; }
+    nav { width: 190px; padding: 18px 10px; border-right: 1px solid var(--line); background: #efe9e0; flex-shrink: 0; }
+    nav h1 { font-size: 15px; margin: 0 8px 14px; }
+    nav a { display: block; padding: 8px 10px; border-radius: 8px; color: var(--ink); text-decoration: none; cursor: pointer; }
+    nav a.on { background: var(--acc); color: #fff; }
+    main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+    .scroll { flex: 1; overflow-y: auto; padding: 22px 28px; }
+    .pane { display: none; } .pane.on { display: block; }
+    h2 { font-size: 17px; margin: 0 0 4px; } p.hint { color: var(--muted); margin: 0 0 16px; font-size: 13px; }
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; margin-bottom: 14px; }
+    .grid { display: grid; grid-template-columns: 220px 1fr; gap: 10px 16px; align-items: center; }
+    label.chk { display: flex; gap: 8px; align-items: center; margin: 6px 0; }
+    input, select { font: inherit; padding: 6px 8px; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink); }
+    input[type=color] { width: 54px; height: 32px; padding: 2px; }
+    input[type=number] { width: 90px; }
+    input[type=range] { width: 220px; vertical-align: middle; }
+    table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+    th { text-align: left; font-weight: 600; font-size: 12px; color: var(--muted); padding: 4px 6px; }
+    td { padding: 4px 6px; } td input:not([type=checkbox]) { width: 100% !important; }
+    .bk { width: 170px; } td.bk select { width: 100%; font-size: 12px; padding: 5px 4px; } .n { width: 64px; } .t { width: 128px; } .x { width: 44px; text-align: center; } .s { width: 64px; } .k { width: 18%; }
+    button { font: inherit; border: 1px solid var(--line); background: #fff; border-radius: 8px; padding: 7px 14px; cursor: pointer; color: var(--ink); }
+    button.pri { background: var(--acc); border-color: var(--acc); color: #fff; font-weight: 600; }
+    button.del { border: 0; background: transparent; color: #b4493c; font-size: 16px; padding: 4px 8px; }
+    .days { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
+    .days button.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+    .galeri { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-top: 10px; }
+    .galeri button { padding: 10px 8px 8px; display: flex; flex-direction: column; align-items: center; gap: 7px; font-size: 12px; }
+    .galeri button.on { border-color: var(--acc); box-shadow: 0 0 0 2px var(--acc); }
+    .mini { width: 128px; height: 26px; border-radius: 13px; display: flex; align-items: center; gap: 6px; padding: 0 10px; font-size: 11px; font-weight: 600; }
+    .mini i { margin-left: auto; width: 8px; height: 8px; border-radius: 50%; }
+    .galeri.kar { grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); }
+    .galeri.kar button { position: relative; }
+    .galeri.kar .gbr { width: 56px; height: 56px; }
+    .galeri.kar .gbr svg, .galeri.kar .gbr img { width: 100%; height: 100%; object-fit: contain; }
+    .galeri.kar .hapus { position: absolute; top: 2px; right: 4px; border: 0; background: transparent; color: #b4493c; padding: 2px 4px; font-size: 13px; }
+    .row-btn { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; margin-top: 12px; }
+    label.chk.inline { display: inline-flex; margin: 0 6px; }
+    .mulut-senang { display: none; }
+    .galeri.tata { grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
+    .skema { width: 150px; height: 88px; border-radius: 14px; background: #1f1f1f; padding: 8px; display: grid; gap: 4px; }
+    .skema i { background: #4a4a4a; border-radius: 5px; display: block; }
+    .skema i.a { background: #6aa36f; }
+    .skema.kotak { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr 1fr; }
+    .skema.daftar { grid-template-columns: 52px 1fr; grid-template-rows: repeat(4, 1fr); }
+    .skema.daftar i.a { grid-row: span 4; }
+    .skema.minimal { place-items: center; grid-template-rows: 1fr auto; }
+    .skema.minimal i.a { width: 70px; height: 34px; }
+    .skema.minimal i:not(.a) { width: 96px; height: 8px; }
+    .skema.klasik { grid-template-rows: 1.4fr 1fr .6fr .5fr; }
+    .daftar-blok { list-style: none; margin: 0; padding: 0; }
+    .daftar-blok li { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 10px; margin-bottom: 6px; background: #fff; }
+    .daftar-blok li .nm { flex: 1; }
+    .daftar-blok li .ket { color: var(--muted); font-size: 12px; }
+    .daftar-blok li button { padding: 3px 9px; }
+    .ik { width: 52px; }
+    .ikon-p { width: 30px; height: 30px; border-radius: 8px; background: #efe9e0; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; color: var(--acc); overflow: hidden; }
+    .ikon-p img { width: 28px; height: 28px; object-fit: contain; }
+    .pk-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 2px 14px; }
+    .pk-contoh { display: inline-flex; width: auto; background: #111; color: #fff; padding: 0 12px; height: 28px; vertical-align: middle; gap: 8px; }
+    .pk-contoh img { width: 22px; height: 22px; }
+    .sw { width: 16px; height: 16px; border-radius: 50%; display: inline-block; border: 1px solid #0002; }
+    .hari-chk { display: flex; gap: 6px; flex-wrap: wrap; }
+    .hari-chk label { font-size: 12px; display: flex; gap: 3px; align-items: center; }
+    footer { padding: 12px 28px; border-top: 1px solid var(--line); background: #fbf9f5; display: flex; gap: 10px; align-items: center; }
+    #status { color: var(--acc); margin-left: auto; font-weight: 600; }
+    .sum { color: var(--muted); font-size: 13px; margin-top: 8px; }
+    code { background: #efe9e0; padding: 1px 5px; border-radius: 4px; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <nav>
+    <h1>Dynamic Island</h1>
+    <a data-p="tampilan" class="on">Tampilan</a>
+    <a data-p="beranda">Beranda</a>
+    <a data-p="jadwal">Jadwal Mengajar</a>
+    <a data-p="bukukelas">BukuKelas</a>
+    <a data-p="pengingat">Pengingat</a>
+    <a data-p="sholat">Jadwal Sholat</a>
+    <a data-p="cuaca">Cuaca</a>
+    <a data-p="pintasan">Pintasan</a>
+    <a data-p="timer">Timer</a>
+    <a data-p="umum">Umum</a>
+  </nav>
+  <main>
+    <div class="scroll">
+      <!-- TAMPILAN -->
+      <div class="pane on" id="p-tampilan">
+        <h2>Tampilan</h2>
+        <p class="hint">Perubahan langsung terlihat setelah klik Simpan.</p>
+        <div class="card">
+          <b>Tema</b>
+          <div class="galeri" id="galeriTema"></div>
+        </div>
+        <div class="card">
+          <b>Isi pil kecil</b>
+          <p class="hint" style="margin:4px 0 10px">Pilih apa saja yang tampil saat pil dalam mode kecil. Dengan <b>lebar otomatis</b>, pil melebar sendiri sesuai isinya sehingga tulisan tidak terpotong.</p>
+          <div class="pk-grid">
+            <label class="chk"><input type="checkbox" id="pk-karakter"> Karakter</label>
+            <label class="chk"><input type="checkbox" id="pk-jam"> Jam</label>
+            <label class="chk"><input type="checkbox" id="pk-detik"> Detik</label>
+            <label class="chk"><input type="checkbox" id="pk-sisa"> Sisa menit</label>
+            <label class="chk"><input type="checkbox" id="pk-cuaca"> Suhu cuaca</label>
+            <label class="chk"><input type="checkbox" id="pk-baterai"> Baterai</label>
+          </div>
+          <p class="hint" style="margin:12px 0 6px"><b>Info di tengah pil</b>: yang dicentang tampil sesuai urutan ini (yang paling atas didahulukan bila ada).</p>
+          <div class="pk-grid">
+            <label class="chk"><input type="checkbox" id="pk-i-timer"> 1. Timer berjalan</label>
+            <label class="chk"><input type="checkbox" id="pk-i-pelajaran"> 2. Pelajaran sekarang</label>
+            <label class="chk"><input type="checkbox" id="pk-i-sholat"> 3. Sholat (20 mnt sebelum)</label>
+            <label class="chk"><input type="checkbox" id="pk-i-musik"> 4. Musik diputar</label>
+            <label class="chk"><input type="checkbox" id="pk-i-berikutnya"> 5. Pelajaran berikutnya</label>
+            <label class="chk"><input type="checkbox" id="pk-i-tanggal"> 6. Tanggal</label>
+          </div>
+          <div style="margin-top:12px;display:flex;gap:14px;align-items:center;flex-wrap:wrap">
+            <label class="chk"><input type="checkbox" id="pk-otomatis"> Lebar otomatis</label>
+            <span class="hint" style="margin:0">Contoh: <span class="mini pk-contoh" id="pkContoh"></span></span>
+          </div>
+        </div>
+        <div class="card">
+          <b>Karakter</b>
+          <p class="hint" style="margin:4px 0 10px">Muncul di pil dan ikut melompat saat ada pengingat. Bisa juga memakai gambar sendiri (PNG, JPG, GIF bergerak, WEBP; maks. 3 MB).</p>
+          <div class="galeri kar" id="galeriKar"></div>
+          <div class="row-btn">
+            <button type="button" id="unggahKar">Unggah gambar sendiri…</button>
+            <input type="file" id="fileKar" accept="image/png,image/jpeg,image/gif,image/webp,image/svg+xml" hidden>
+            <label class="chk"><input type="checkbox" id="karakterTampil"> Tampilkan karakter</label>
+            <label class="chk"><input type="checkbox" id="karakterGerak"> Beranimasi (berayun &amp; melompat)</label>
+          </div>
+        </div>
+        <div class="card grid">
+          <span>Warna latar</span><span><input type="color" id="warnaLatar"> <label class="chk inline"><input type="checkbox" id="pakaiGradien"> gradien ke</label> <input type="color" id="warnaLatar2"> <input type="number" id="sudut" min="0" max="360" step="15" title="Arah gradien (derajat)" style="width:72px">°</span>
+          <span>Warna aksen</span><span><input type="color" id="warnaAksen"> <label class="chk inline"><input type="checkbox" id="aksenMapel"> ikut warna mapel yang sedang berlangsung</label></span>
+          <span>Warna teks</span><input type="color" id="warnaTeks">
+          <span>Efek cahaya</span><label class="chk"><input type="checkbox" id="cahaya"> Pinggiran bercahaya</label>
+          <span>Lebar mode ringkas (px)<br><span class="hint" style="margin:0">dipakai bila lebar otomatis mati</span></span><span><input type="range" id="lebarRingkas" min="160" max="420" step="10"> <b id="lebarVal"></b></span>
+          <span>Jarak dari atas layar (px)</span><input type="number" id="jarakAtas" min="0" max="200">
+          <span>Ketebalan (opasitas %)</span><span><input type="range" id="transparansi" min="40" max="100" step="5"> <b id="opVal"></b></span>
+          <span>Cara membuka</span>
+          <select id="modeBuka"><option value="hover">Arahkan kursor (hover)</option><option value="klik">Klik</option></select>
+          <span>Posisi pil</span>
+          <span><button type="button" id="resetPosisi">Kembalikan ke tengah atas</button> <span class="hint" style="margin:0">Pil bisa digeser: seret pil kecilnya, atau garis kecil di atas saat terbuka.</span></span>
+          <span>Format jam</span>
+          <select id="formatJam"><option value="24">24 jam (13:30)</option><option value="12">12 jam (01:30 PM)</option></select>
+        </div>
+      </div>
+
+      <!-- BERANDA -->
+      <div class="pane" id="p-beranda">
+        <h2>Beranda</h2>
+        <p class="hint">Pilih tata letak Beranda (tab pertama saat pil terbuka), lalu atur kotak apa saja yang tampil dan urutannya.</p>
+        <div class="card">
+          <b>Tata letak</b>
+          <div class="galeri tata" id="galeriTata"></div>
+        </div>
+        <div class="card">
+          <b>Kotak yang tampil</b>
+          <p class="hint" style="margin:4px 0 10px">Centang untuk menampilkan, pakai ▲ ▼ untuk mengubah urutan. Pada tata letak Minimalis hanya 2 kotak teratas (selain jam) yang tampil.</p>
+          <ul id="daftarBlok" class="daftar-blok"></ul>
+        </div>
+      </div>
+
+      <!-- JADWAL -->
+      <div class="pane" id="p-jadwal">
+        <h2>Jadwal Mengajar</h2>
+        <p class="hint">Isi jam mulai dan jumlah JP. Jam selesai dihitung otomatis dari lama 1 JP.</p>
+        <div class="card grid" style="margin-bottom:14px">
+          <span>Lama 1 JP (menit)</span><input type="number" id="menitPerJP" min="5" max="120">
+        </div>
+        <div class="card">
+          <div class="days" id="days"></div>
+          <table>
+            <thead><tr><th class="t">Mulai</th><th class="n">JP</th><th>Mapel / Kegiatan</th><th class="k">Keterangan</th><th class="s">Selesai</th><th class="bk">Mapel di BukuKelas</th><th class="x"></th></tr></thead>
+            <tbody id="jadwalBody"></tbody>
+          </table>
+          <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+            <button id="addRow">+ Tambah baris</button>
+            <button id="autoNext" title="Baris baru dimulai tepat setelah baris terakhir selesai">+ Tambah lanjutan</button>
+            <button id="copyDay">Salin hari ini ke…</button>
+            <select id="copyTarget"></select>
+          </div>
+          <div class="sum" id="jadwalSum"></div>
+        </div>
+        <datalist id="mapelList"></datalist>
+      </div>
+
+      <!-- BUKUKELAS -->
+      <div class="pane" id="p-bukukelas">
+        <h2>BukuKelas</h2>
+        <p class="hint">Menyambungkan Dynamic Island ke bukukelas.vercel.app untuk daftar siswa, presensi, nilai, dan jurnal mengajar.</p>
+        <div class="card">
+          <div id="bkStatus">Memeriksa…</div>
+          <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+            <button class="pri" id="bkPanel">Buka Panel Kelas</button>
+            <button id="bkMuat">Muat ulang data</button>
+            <button id="bkKeluar">Keluar dari BukuKelas</button>
+          </div>
+        </div>
+        <div class="card">
+          <b>Sambungan Supabase</b>
+          <p class="hint" style="margin:4px 0 10px">Sudah terisi sesuai BukuKelas. Ubah hanya bila proyek Supabase BukuKelas dipindah.</p>
+          <div class="grid">
+            <span>Project URL</span><input id="bkUrl" style="width:100%">
+            <span>Anon public key</span><input id="bkKey" style="width:100%">
+          </div>
+        </div>
+      </div>
+
+      <!-- PENGINGAT -->
+      <div class="pane" id="p-pengingat">
+        <h2>Pengingat</h2>
+        <p class="hint">Pulau akan membesar, berdenyut, dan berbunyi saat pengingat muncul.</p>
+        <div class="card grid">
+          <span>Ingatkan sebelum pelajaran (menit)</span><input type="number" id="menitSebelum" min="0" max="60">
+          <span>Saat pelajaran dimulai</span><label class="chk"><input type="checkbox" id="saatMulai"> Aktif</label>
+          <span>Saat pelajaran selesai</span><label class="chk"><input type="checkbox" id="saatSelesai"> Aktif</label>
+          <span>Bunyi</span><label class="chk"><input type="checkbox" id="suara"> Aktif</label>
+          <span>Tawarkan isi jurnal saat pelajaran selesai</span><label class="chk"><input type="checkbox" id="tawarJurnal"> Aktif (perlu tersambung ke BukuKelas)</label>
+          <span>Beri tahu saat internet putus/tersambung</span><label class="chk"><input type="checkbox" id="internet"> Aktif</label>
+          <span>Notifikasi Windows juga</span><label class="chk"><input type="checkbox" id="notifWindows"> Aktif</label>
+          <span>Lama tampil (detik)</span><input type="number" id="lamaTampil" min="5" max="300">
+        </div>
+        <div class="card grid">
+          <span><b>Pengingat minum air</b></span><label class="chk"><input type="checkbox" id="mi-aktif"> Aktif</label>
+          <span>Setiap (menit)</span><input type="number" id="mi-interval" min="15" max="240" step="15">
+          <span>Dari jam – sampai jam</span><span><input type="time" id="mi-mulai"> – <input type="time" id="mi-selesai"></span>
+          <span>Hanya pada hari sekolah</span><label class="chk"><input type="checkbox" id="mi-sekolah"> Ya</label>
+        </div>
+        <div class="card grid">
+          <span><b>Peringatan baterai</b></span><label class="chk"><input type="checkbox" id="bt-aktif"> Aktif (saat charger tidak terpasang)</label>
+          <span>Peringatan pertama di (%)</span><input type="number" id="bt-batas" min="5" max="50">
+          <span>Peringatan kritis di (%)</span><input type="number" id="bt-kritis" min="3" max="30">
+        </div>
+        <div class="card">
+          <b>Pengingat khusus</b>
+          <p class="hint" style="margin-top:4px">Untuk hal di luar jadwal: rapat, setor nilai, piket, dll.</p>
+          <table>
+            <thead><tr><th class="t">Jam</th><th>Teks</th><th style="width:300px">Hari</th><th class="x"></th></tr></thead>
+            <tbody id="khususBody"></tbody>
+          </table>
+          <button id="addKhusus" style="margin-top:10px">+ Tambah pengingat</button>
+        </div>
+      </div>
+
+      <!-- SHOLAT -->
+      <div class="pane" id="p-sholat">
+        <h2>Jadwal Sholat</h2>
+        <p class="hint">Dihitung di laptop (tanpa internet) dengan kriteria Kemenag. Koordinat bawaan menghasilkan jadwal yang sama dengan Bimas Islam Kemenag untuk Kab. Indragiri Hulu (selisih paling banyak 1 menit).</p>
+        <div class="card grid">
+          <span>Tampilkan jadwal sholat</span><label class="chk"><input type="checkbox" id="sh-aktif"> Aktif</label>
+          <span>Ingatkan sebelum waktu sholat (menit)</span><input type="number" id="sh-menit" min="0" max="60">
+          <span>Pengingat tepat waktu sholat</span><label class="chk"><input type="checkbox" id="sh-adzan"> Aktif</label>
+          <span>Lintang</span><input type="number" id="sh-lat" step="0.01">
+          <span>Bujur</span><input type="number" id="sh-lon" step="0.01">
+        </div>
+        <div class="card"><b>Jadwal hari ini</b><div id="sh-hariini" class="sum"></div>
+          <button type="button" id="sh-bawaan" style="margin-top:10px">Pakai koordinat bawaan (Indragiri Hulu)</button></div>
+      </div>
+
+      <!-- CUACA -->
+      <div class="pane" id="p-cuaca">
+        <h2>Cuaca</h2>
+        <p class="hint">Data dari Open-Meteo (gratis, tanpa akun), diperbarui tiap 30 menit saat ada internet. Tampil di Beranda, dan pengingat PJOK/upacara/Adiwiyata ikut memberi tahu bila kemungkinan hujan ≥ 50%.</p>
+        <div class="card grid">
+          <span>Tampilkan cuaca</span><label class="chk"><input type="checkbox" id="cu-aktif"> Aktif</label>
+          <span>Peringatan hujan untuk kegiatan luar kelas</span><label class="chk"><input type="checkbox" id="cu-hujan"> Aktif</label>
+          <span>Nama lokasi</span><input id="cu-nama" placeholder="Titian Resak">
+          <span>Lintang</span><input type="number" id="cu-lat" step="0.0001">
+          <span>Bujur</span><input type="number" id="cu-lon" step="0.0001">
+        </div>
+        <div class="card"><p class="hint" style="margin:0">Agar lebih tepat untuk sekolah: buka Google Maps, klik kanan lokasi SD Negeri 017 Titian Resak, klik angka koordinat yang muncul (misalnya <code>-0.7521, 102.5103</code>), lalu tempel angka pertama ke Lintang dan angka kedua ke Bujur.</p>
+          <button type="button" id="cu-samakan" style="margin-top:10px">Samakan dengan lokasi jadwal sholat</button></div>
+      </div>
+
+      <!-- PINTASAN -->
+      <div class="pane" id="p-pintasan">
+        <h2>Pintasan</h2>
+        <p class="hint">Target bisa berupa alamat web (<code>https://…</code>), folder/file (<code>D:\Administrasi</code>, <code>%USERPROFILE%\Documents</code>), atau nama program (<code>winword</code>, <code>excel</code>, <code>notepad.exe</code>).</p>
+        <div class="card">
+          <table>
+            <thead><tr><th class="ik">Logo</th><th style="width:200px">Nama</th><th>Target</th><th class="x"></th></tr></thead>
+            <tbody id="pintasanBody"></tbody>
+          </table>
+          <button id="addPintasan" style="margin-top:10px">+ Tambah pintasan</button>
+        </div>
+      </div>
+
+      <!-- TIMER -->
+      <div class="pane" id="p-timer">
+        <h2>Timer</h2>
+        <p class="hint">Tombol cepat timer (menit), pisahkan dengan koma.</p>
+        <div class="card grid">
+          <span>Preset timer</span><input id="timerPreset" placeholder="5, 10, 15, 35">
+        </div>
+      </div>
+
+      <!-- UMUM -->
+      <div class="pane" id="p-umum">
+        <h2>Umum</h2>
+        <div class="card">
+          <label class="chk"><input type="checkbox" id="autostart"> Jalankan otomatis saat Windows menyala</label>
+          <label class="chk"><input type="checkbox" id="sembunyiPresentasi"> Sembunyikan pil saat presentasi atau video layar penuh</label>
+        </div>
+        <div class="card">
+          <b>Pembaruan</b>
+          <div id="upInfo" class="sum" style="margin:6px 0 10px"></div>
+          <label class="chk"><input type="checkbox" id="updateOtomatis"> Periksa &amp; unduh pembaruan otomatis (dari GitHub dwiseptiyanasdn017/dynamic-island)</label>
+          <button type="button" id="upPeriksa" style="margin-top:8px">Periksa sekarang</button>
+          <button type="button" id="upPasang" class="pri" style="margin-top:8px" hidden>Pasang &amp; mulai ulang</button>
+        </div>
+        <div class="card">
+          <b>Hemat sumber daya</b>
+          <p class="hint" style="margin:4px 0 8px">Matikan fitur yang tidak dipakai agar laptop lebih ringan. Masing-masing memakai satu proses kecil PowerShell di latar belakang.</p>
+          <label class="chk"><input type="checkbox" id="fiturMedia"> Info musik &amp; mode presentasi otomatis</label>
+          <label class="chk"><input type="checkbox" id="fiturKontrol"> Pengatur volume &amp; kecerahan</label>
+        </div>
+        <div class="card">
+          <b>Pintasan keyboard</b>
+          <p class="hint" style="margin:6px 0 0"><code>Ctrl+Alt+D</code> tampilkan/sembunyikan pulau · <code>Ctrl+Alt+S</code> buka pengaturan · <code>Ctrl+Alt+K</code> buka Panel Kelas</p>
+        </div>
+        <div class="card" style="display:flex;gap:8px;flex-wrap:wrap">
+          <button id="exportBtn">Ekspor pengaturan (.json)</button>
+          <button id="importBtn">Impor pengaturan</button>
+          <input type="file" id="importFile" accept=".json" hidden>
+          <button id="folderBtn">Buka folder konfigurasi</button>
+          <button id="resetBtn">Kembalikan ke bawaan</button>
+        </div>
+      </div>
+    </div>
+    <footer>
+      <button class="pri" id="saveBtn">Simpan</button>
+      <button id="closeBtn">Tutup</button>
+      <span id="status"></span>
+    </footer>
+  </main>
+  <script src="shared.js"></script>
+  <script src="karakter.js"></script>
+  <script src="settings.js"></script>
+</body>
+</html>

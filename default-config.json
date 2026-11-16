@@ -1,0 +1,294 @@
+{
+  "tampilan": {
+    "warnaLatar": "#000000",
+    "warnaAksen": "#4ade80",
+    "warnaTeks": "#ffffff",
+    "lebarRingkas": 320,
+    "jarakAtas": 8,
+    "transparansi": 100,
+    "modeBuka": "hover",
+    "formatJam": "24",
+    "tema": "hitam",
+    "warnaLatar2": "",
+    "sudut": 135,
+    "cahaya": false,
+    "aksenMapel": true,
+    "karakter": "hantu",
+    "karakterTampil": true,
+    "karakterGerak": true,
+    "karakterKustom": [],
+    "pilKecil": {
+      "karakter": true,
+      "jam": true,
+      "detik": false,
+      "sisa": true,
+      "baterai": true,
+      "cuaca": false,
+      "lebarOtomatis": true,
+      "info": {
+        "timer": true,
+        "pelajaran": true,
+        "sholat": true,
+        "musik": true,
+        "berikutnya": true,
+        "tanggal": true
+      }
+    },
+    "beranda": {
+      "tata": "kotak",
+      "blok": [
+        {
+          "id": "jam",
+          "on": true
+        },
+        {
+          "id": "pelajaran",
+          "on": true
+        },
+        {
+          "id": "sholat",
+          "on": true
+        },
+        {
+          "id": "cuaca",
+          "on": true
+        },
+        {
+          "id": "baterai",
+          "on": true
+        },
+        {
+          "id": "kehadiran",
+          "on": false
+        }
+      ]
+    }
+  },
+  "menitPerJP": 35,
+  "jadwal": {
+    "1": [
+      {
+        "mulai": "07:15",
+        "jp": 1,
+        "mapel": "Upacara",
+        "ket": ""
+      },
+      {
+        "mulai": "07:50",
+        "jp": 3,
+        "mapel": "Bahasa Indonesia",
+        "ket": "Kelas 2C"
+      },
+      {
+        "mulai": "09:35",
+        "jp": 1,
+        "mapel": "Istirahat",
+        "ket": ""
+      },
+      {
+        "mulai": "10:10",
+        "jp": 2,
+        "mapel": "Matematika",
+        "ket": "Kelas 2C"
+      }
+    ],
+    "2": [
+      {
+        "mulai": "07:15",
+        "jp": 2,
+        "mapel": "Pendidikan Pancasila",
+        "ket": "Kelas 2C"
+      },
+      {
+        "mulai": "08:25",
+        "jp": 2,
+        "mapel": "PJOK",
+        "ket": "Lapangan"
+      },
+      {
+        "mulai": "09:35",
+        "jp": 1,
+        "mapel": "Istirahat",
+        "ket": ""
+      },
+      {
+        "mulai": "10:10",
+        "jp": 2,
+        "mapel": "Bahasa Inggris",
+        "ket": "Kelas 2C"
+      }
+    ],
+    "3": [
+      {
+        "mulai": "07:15",
+        "jp": 3,
+        "mapel": "Matematika",
+        "ket": "Kelas 2C"
+      },
+      {
+        "mulai": "09:00",
+        "jp": 1,
+        "mapel": "Istirahat",
+        "ket": ""
+      },
+      {
+        "mulai": "09:35",
+        "jp": 2,
+        "mapel": "PAI",
+        "ket": "Kelas 2C"
+      }
+    ],
+    "4": [
+      {
+        "mulai": "07:15",
+        "jp": 2,
+        "mapel": "Bahasa Indonesia",
+        "ket": "Kelas 2C"
+      },
+      {
+        "mulai": "08:25",
+        "jp": 2,
+        "mapel": "Seni Rupa",
+        "ket": "Kelas 2C"
+      },
+      {
+        "mulai": "09:35",
+        "jp": 1,
+        "mapel": "Istirahat",
+        "ket": ""
+      },
+      {
+        "mulai": "10:10",
+        "jp": 2,
+        "mapel": "BMR",
+        "ket": "Kelas 2C"
+      }
+    ],
+    "5": [
+      {
+        "mulai": "07:15",
+        "jp": 2,
+        "mapel": "PAI",
+        "ket": "Kelas 2C"
+      },
+      {
+        "mulai": "08:25",
+        "jp": 2,
+        "mapel": "Matematika",
+        "ket": "Kelas 2C"
+      }
+    ],
+    "6": [
+      {
+        "mulai": "07:15",
+        "jp": 2,
+        "mapel": "Bahasa Indonesia",
+        "ket": "Kelas 2C"
+      },
+      {
+        "mulai": "08:25",
+        "jp": 2,
+        "mapel": "Kegiatan Adiwiyata",
+        "ket": "Lingkungan sekolah"
+      }
+    ]
+  },
+  "pengingat": {
+    "menitSebelum": 5,
+    "saatMulai": true,
+    "saatSelesai": true,
+    "suara": true,
+    "notifWindows": false,
+    "lamaTampil": 20,
+    "tawarJurnal": true,
+    "internet": true,
+    "minum": {
+      "aktif": true,
+      "interval": 60,
+      "mulai": "07:00",
+      "selesai": "14:00",
+      "hanyaSekolah": true
+    },
+    "baterai": {
+      "aktif": true,
+      "batas": 20,
+      "kritis": 10
+    }
+  },
+  "pengingatKhusus": [
+    {
+      "jam": "06:45",
+      "teks": "Cek presensi & siapkan bahan ajar",
+      "hari": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    }
+  ],
+  "pintasan": [
+    {
+      "nama": "BukuKelas",
+      "target": "https://bukukelas.vercel.app/"
+    },
+    {
+      "nama": "PindaiDok",
+      "target": "https://pindaidok.vercel.app/"
+    },
+    {
+      "nama": "Word",
+      "target": "winword"
+    },
+    {
+      "nama": "Excel",
+      "target": "excel"
+    },
+    {
+      "nama": "Notepad",
+      "target": "notepad.exe"
+    },
+    {
+      "nama": "Dokumen",
+      "target": "%USERPROFILE%\\Documents"
+    },
+    {
+      "nama": "Kalkulator",
+      "target": "calc.exe"
+    }
+  ],
+  "bukukelas": {
+    "url": "https://fjntgxppuhjvqxnapnjb.supabase.co",
+    "anonKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZqbnRneHBwdWhqdnF4bmFwbmpiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM4NjYwNzgsImV4cCI6MjEwOTQ0MjA3OH0.zoqZK-KE9MnwpiOUXQpBU1wn3r_6aMT1T7TOHI5iE6w",
+    "mapelJadwal": {}
+  },
+  "timerPreset": [
+    5,
+    10,
+    15,
+    35
+  ],
+  "umum": {
+    "autostart": false,
+    "sembunyiPresentasi": true,
+    "updateOtomatis": true,
+    "fiturMedia": true,
+    "fiturKontrol": true
+  },
+  "sholat": {
+    "aktif": true,
+    "lat": -0.48,
+    "lon": 102.44,
+    "menitSebelum": 10,
+    "saatAdzan": true
+  },
+  "cuaca": {
+    "aktif": true,
+    "nama": "Indragiri Hulu",
+    "lat": -0.48,
+    "lon": 102.44,
+    "peringatanHujan": true
+  }
+}

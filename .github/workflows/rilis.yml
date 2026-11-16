@@ -1,0 +1,27 @@
+# Membuat installer Windows dan menerbitkannya ke GitHub Releases setiap ada tag versi (mis. v1.5.0).
+# Dynamic Island di laptop memeriksa Releases ini untuk pembaruan otomatis.
+name: Rilis Windows
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Pasang paket
+        run: npm ci
+      - name: Buat installer & terbitkan
+        run: npx electron-builder --win --publish always
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

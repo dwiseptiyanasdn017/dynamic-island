@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:">
+  <title>Dynamic Island</title>
+  <link rel="stylesheet" href="island.css">
+</head>
+<body>
+  <div id="island" class="compact">
+    <!-- Mode ringkas -->
+    <div id="compact" class="view">
+      <span class="av" id="c-av"></span>
+      <span id="c-time"></span>
+      <span id="c-ctx"></span>
+      <span id="c-ind"></span>
+      <div id="c-bar"><div></div></div>
+    </div>
+
+    <!-- Mode besar -->
+    <div id="expanded" class="view">
+      <div id="grip" title="Seret untuk memindahkan"></div>
+      <nav id="tabs">
+        <button data-tab="beranda" class="on">Beranda</button>
+        <button data-tab="jadwal">Jadwal</button>
+        <button data-tab="kalender">Kalender</button>
+        <button data-tab="kelas">Kelas</button>
+        <button data-tab="musik">Media</button>
+        <button data-tab="timer">Timer</button>
+        <button data-tab="pintasan">Pintasan</button>
+        <button id="btn-set" title="Pengaturan (Ctrl+Alt+S)">⚙</button>
+      </nav>
+
+      <section data-tab="beranda" class="on">
+        <div id="beranda"></div>
+      </section>
+
+      <section data-tab="jadwal">
+        <div id="j-head" class="muted"></div>
+        <ul id="j-list"></ul>
+      </section>
+
+      <section data-tab="kalender">
+        <div id="kal-head">
+          <button id="kal-prev" title="Bulan sebelumnya">‹</button>
+          <b id="kal-judul"></b>
+          <button id="kal-next" title="Bulan berikutnya">›</button>
+          <button id="kal-ini">Hari ini</button>
+        </div>
+        <div id="kal-grid"></div>
+        <div id="kal-info" class="muted"></div>
+      </section>
+
+      <section data-tab="kelas">
+        <div id="k-off" hidden>
+          <div class="card"><b>Belum tersambung ke BukuKelas</b>Masuk sekali untuk mengambil daftar siswa dan mengirim presensi, nilai, serta jurnal.</div>
+          <button class="aksi utama" data-kelas="presensi">Masuk ke BukuKelas</button>
+        </div>
+        <div id="k-on">
+          <div id="k-head" class="muted"></div>
+          <div id="k-acak">
+            <div id="k-nama">—</div>
+            <button class="aksi utama" id="k-acak-btn">Acak siswa</button>
+          </div>
+          <div id="k-btns">
+            <button class="aksi" data-kelas="presensi">Presensi</button>
+            <button class="aksi" data-kelas="nilai">Nilai</button>
+            <button class="aksi" data-kelas="jurnal">Jurnal</button>
+            <button class="aksi" data-kelas="acak">Kelompok</button>
+          </div>
+        </div>
+      </section>
+
+      <section data-tab="musik">
+        <div id="m-box">
+          <div id="m-app" class="muted"></div>
+          <div id="m-title"></div>
+          <div id="m-artist" class="muted"></div>
+          <div id="m-ctrl">
+            <button data-m="prev" title="Sebelumnya">⏮</button>
+            <button data-m="playpause" id="m-pp" title="Putar/Jeda">⏯</button>
+            <button data-m="next" title="Berikutnya">⏭</button>
+          </div>
+        </div>
+        <div id="sl">
+          <div class="sl-row"><button id="sl-mute" title="Senyap">🔊</button><input type="range" id="sl-vol" min="0" max="100"><span id="sl-vol-v"></span></div>
+          <div class="sl-row"><span class="sl-ik">☀</span><input type="range" id="sl-bri" min="0" max="100"><span id="sl-bri-v"></span></div>
+          <div id="sl-info" class="muted"></div>
+        </div>
+      </section>
+
+      <section data-tab="timer">
+        <div id="t-display">00:00</div>
+        <div id="t-bar"><div></div></div>
+        <div id="t-presets"></div>
+        <div class="row">
+          <input id="t-custom" type="number" min="1" max="600" placeholder="menit">
+          <button id="t-start">Mulai</button>
+          <button id="t-pause">Jeda</button>
+          <button id="t-reset">Ulang</button>
+        </div>
+      </section>
+
+      <section data-tab="pintasan">
+        <div id="p-grid"></div>
+      </section>
+    </div>
+
+    <!-- Mode peringatan -->
+    <div id="alert" class="view">
+      <span class="av" id="a-av"></span>
+      <div id="a-title"></div>
+      <div id="a-body"></div>
+      <div class="row end">
+        <span id="a-count" class="muted"></span>
+        <span class="row">
+          <button id="a-act" hidden></button>
+          <button id="a-close">Tutup</button>
+        </span>
+      </div>
+    </div>
+  </div>
+  <script src="shared.js"></script>
+  <script src="karakter.js"></script>
+  <script src="island.js"></script>
+</body>
+</html>
