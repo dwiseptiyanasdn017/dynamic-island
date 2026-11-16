@@ -1,10 +1,11 @@
-# Membuat installer Windows dan menerbitkannya ke GitHub Releases setiap ada tag versi (mis. v1.5.0).
+# Membuat installer Windows dan menerbitkannya ke GitHub Releases setiap nomor versi di package.json naik.
 # Dynamic Island di laptop memeriksa Releases ini untuk pembaruan otomatis.
 name: Rilis Windows
 
 on:
   push:
-    tags: ['v*']
+    branches: [main]
+    paths: ['package.json', '.github/workflows/rilis.yml']
   workflow_dispatch:
 
 permissions:
@@ -15,13 +16,28 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Cek apakah versi ini sudah dirilis
+        id: cek
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VER=$(node -p "require('./package.json').version")
+          echo "versi=$VER" >> $GITHUB_OUTPUT
+          if gh release view "v$VER" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "Versi v$VER sudah ada di Releases, tidak dibuat ulang."
+            echo "lewati=1" >> $GITHUB_OUTPUT
+          fi
       - uses: actions/setup-node@v4
+        if: steps.cek.outputs.lewati != '1'
         with:
           node-version: 22
           cache: npm
       - name: Pasang paket
+        if: steps.cek.outputs.lewati != '1'
         run: npm ci
-      - name: Buat installer & terbitkan
+      - name: Buat installer & terbitkan v${{ steps.cek.outputs.versi }}
+        if: steps.cek.outputs.lewati != '1'
         run: npx electron-builder --win --publish always
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
