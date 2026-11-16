@@ -16,7 +16,7 @@ const WIN_H = 380;
 let island = null;
 let settingsWin = null;
 let kelasWin = null;
-let widget = null;
+const widgets = {};   // id kartu -> jendela widget
 let bk = null;
 let tray = null;
 let mediaProc = null;
@@ -236,68 +236,108 @@ function openKelas(arg = {}) {
 }
 
 // ---------- Widget desktop ----------
-// Jendela transparan di belakang jendela lain (tidak selalu di atas), bisa diseret lewat judul kartu.
-const WGT_W = 316;
-function posisiWidget() {
-  const p = (config.widget || {}).posisi;
-  if (p && Number.isFinite(p.x) && Number.isFinite(p.y)) {
-    const wa = screen.getDisplayMatching({ x: p.x, y: p.y, width: WGT_W, height: 200 }).workArea;
-    return { x: clamp(p.x, wa.x, wa.x + wa.width - WGT_W), y: clamp(p.y, wa.y, wa.y + wa.height - 120) };
-  }
-  const wa = screen.getPrimaryDisplay().workArea;  // bawaan: pojok kanan atas
-  return { x: wa.x + wa.width - WGT_W - 12, y: wa.y + 12 };
+// Setiap kartu adalah jendela transparan tersendiri di belakang jendela lain: bisa diseret ke mana saja
+// lewat judulnya, dan diperbesar/diperkecil (70–160%) lewat pojok kanan bawah atau Ctrl+scroll.
+// Posisi dan skala tiap kartu disimpan di config.widget.kartuPos[id] = { x, y, skala }.
+const KARTU_WIDGET = ['sholatCuaca', 'jadwal', 'kalender'];
+let perluRapikan = false;
+const wcfg = () => (config.widget = config.widget || {});
+const kartuPos = id => ((wcfg().kartuPos || {})[id]) || {};
+function simpanKartuPos(id, ubah) {
+  const w = wcfg();
+  w.kartuPos = { ...(w.kartuPos || {}), [id]: { ...kartuPos(id), ...ubah } };
+  saveConfigFile();
 }
-function createWidget() {
-  if (widget || quitting) return;
-  const { x, y } = posisiWidget();
-  widget = new BrowserWindow({
-    x, y, width: WGT_W, height: 320,
+const kartuAktif = id => wcfg().aktif !== false && ((wcfg().kartu || {})[id] !== false);
+function createKartu(id) {
+  if (widgets[id] || quitting) return;
+  const p = kartuPos(id);
+  const ada = Number.isFinite(p.x) && Number.isFinite(p.y);
+  if (!ada) perluRapikan = true;
+  const wa = screen.getPrimaryDisplay().workArea;
+  const win = new BrowserWindow({
+    x: ada ? p.x : wa.x + wa.width - 330, y: ada ? p.y : wa.y + 12, width: 316, height: 200,
     frame: false, transparent: true, backgroundColor: '#00000000',
     resizable: false, minimizable: false, maximizable: false, fullscreenable: false,
     skipTaskbar: true, hasShadow: false, alwaysOnTop: false, show: false,
     title: 'Widget Desktop',
     webPreferences: { preload: path.join(__dirname, 'preload.js'), contextIsolation: true, nodeIntegration: false }
   });
-  widget.loadFile('widget.html');
-  widget.once('ready-to-show', () => widget && widget.showInactive());
-  widget.on('moved', () => {
-    if (!widget) return;
-    const [nx, ny] = widget.getPosition();
-    config.widget = { ...(config.widget || {}), posisi: { x: nx, y: ny } };
-    saveConfigFile();
+  win.kartuId = id;
+  win.ukuranSiap = false;
+  widgets[id] = win;
+  win.loadFile('widget.html', { query: { kartu: id } });
+  win.once('ready-to-show', () => { if (!win.isDestroyed()) win.showInactive(); });
+  win.on('moved', () => {
+    if (win.isDestroyed()) return;
+    const [x, y] = win.getPosition();
+    simpanKartuPos(id, { x, y });
   });
-  widget.on('close', e => { if (!quitting) e.preventDefault(); });
-  widget.on('closed', () => { widget = null; });
+  win.on('close', e => { if (!quitting) e.preventDefault(); });
+  win.on('closed', () => { if (widgets[id] === win) delete widgets[id]; });
 }
+function tutupKartu(id) { const w = widgets[id]; if (w) { delete widgets[id]; w.destroy(); } }
 function aturWidget() {
-  const aktif = (config.widget || {}).aktif !== false;
-  if (aktif && !widget) createWidget();
-  else if (!aktif && widget) { widget.destroy(); widget = null; }
+  for (const id of KARTU_WIDGET) { if (kartuAktif(id)) createKartu(id); else tutupKartu(id); }
+}
+/** Pastikan kartu tetap terlihat di salah satu layar (mis. setelah monitor kedua dicabut). */
+function jagaDiLayar(win) {
+  const b = win.getBounds();
+  const wa = screen.getDisplayMatching(b).workArea;
+  const x = clamp(b.x, wa.x - b.width + 80, wa.x + wa.width - 80), y = clamp(b.y, wa.y, wa.y + wa.height - 60);
+  if (x !== b.x || y !== b.y) win.setPosition(x, y);
+}
+/** Susun semua kartu dari pojok kanan atas ke bawah; bila tidak muat, lanjut ke kolom di sebelah kirinya. */
+function rapikanKartu() {
+  const wa = screen.getPrimaryDisplay().workArea;
+  let kanan = wa.x + wa.width - 12, y = wa.y + 12, lebarKolom = 0;
+  for (const id of KARTU_WIDGET) {
+    const win = widgets[id]; if (!win || win.isDestroyed()) continue;
+    const [w, h] = win.getSize();
+    if (y > wa.y + 12 && y + h > wa.y + wa.height - 8) { kanan -= lebarKolom + 4; y = wa.y + 12; lebarKolom = 0; }
+    win.setPosition(Math.round(kanan - w), Math.round(y));
+    simpanKartuPos(id, { x: Math.round(kanan - w), y: Math.round(y) });
+    y += h - 6; lebarKolom = Math.max(lebarKolom, w);   // jendela punya tepi transparan 8 px
+    win.showInactive();
+  }
+  perluRapikan = false;
 }
 function tampilkanWidget() {
-  config.widget = { ...(config.widget || {}), aktif: true };
-  saveConfigFile();
-  if (!widget) createWidget(); else { const { x, y } = posisiWidget(); widget.setPosition(x, y); widget.showInactive(); }
+  wcfg().aktif = true; saveConfigFile();
+  aturWidget();
+  Object.values(widgets).forEach(w => { jagaDiLayar(w); w.showInactive(); });
   broadcast('cfg:updated', config);
 }
 function sembunyikanWidget() {
-  config.widget = { ...(config.widget || {}), aktif: false };
-  saveConfigFile(); aturWidget(); broadcast('cfg:updated', config);
+  wcfg().aktif = false; saveConfigFile(); aturWidget(); broadcast('cfg:updated', config);
 }
-ipcMain.on('widget:tinggi', (e, h) => {
-  if (!widget || !angka(h)) return;
-  const tinggi = clamp(Math.ceil(Number(h)), 60, 1000);
-  const [w, lama] = widget.getSize();
-  if (lama === tinggi) return;
-  // jendela berukuran tetap mengabaikan setSize di sebagian sistem, jadi buka kuncinya sebentar
-  widget.setResizable(true);
-  widget.setSize(w, tinggi);
-  widget.setResizable(false);
+const kartuDari = e => { const w = BrowserWindow.fromWebContents(e.sender); return w && w.kartuId && widgets[w.kartuId] === w ? w : null; };
+// Renderer melaporkan ukuran isi (sudah termasuk skala). Pojok kiri atas tetap di tempat.
+ipcMain.on('widget:ukuran', (e, w, h) => {
+  const win = kartuDari(e);
+  if (!win || !angka(w) || !angka(h)) return;
+  const lebar = clamp(Math.ceil(Number(w)), 120, 1400), tinggi = clamp(Math.ceil(Number(h)), 60, 2000);
+  const [lw, lh] = win.getSize();
+  if (lw !== lebar || lh !== tinggi) {
+    // jendela berukuran tetap mengabaikan setSize di sebagian sistem, jadi buka kuncinya sebentar
+    win.setResizable(true); win.setSize(lebar, tinggi); win.setResizable(false);
+  }
+  if (!win.ukuranSiap) {
+    win.ukuranSiap = true;
+    if (perluRapikan && Object.values(widgets).every(x => x.ukuranSiap)) {
+      // tunggu isi kartu (data BukuKelas, cuaca) selesai dimuat agar tinggi kartu sudah final
+      clearTimeout(rapikanKartu.t); rapikanKartu.t = setTimeout(rapikanKartu, 2500);
+    } else jagaDiLayar(win);
+  }
 });
-ipcMain.on('widget:reset', () => {
-  if (config.widget) delete config.widget.posisi;
-  saveConfigFile();
-  if (widget) { const { x, y } = posisiWidget(); widget.setPosition(x, y); widget.showInactive(); }
+ipcMain.on('widget:skala', (e, skala) => {
+  const win = kartuDari(e);
+  if (win && angka(skala)) simpanKartuPos(win.kartuId, { skala: clamp(Math.round(Number(skala) * 100) / 100, 0.7, 1.6) });
+});
+ipcMain.on('widget:reset', () => rapikanKartu());
+ipcMain.on('widget:skala100', () => {
+  for (const id of KARTU_WIDGET) simpanKartuPos(id, { skala: 1 });
+  broadcast('cfg:updated', config);
 });
 
 // ---------- BukuKelas ----------
@@ -594,13 +634,14 @@ ipcMain.handle('cfg:get', () => config);
 ipcMain.handle('cfg:default', () => structuredClone(DEFAULT));
 ipcMain.handle('cfg:save', (e, next) => {
   const posisi = config.tampilan.posisi; // posisi pil hanya diubah lewat seret / tombol kembalikan
-  const posWidget = (config.widget || {}).posisi;
+  const posKartu = (config.widget || {}).kartuPos;
   if (next && next.tampilan) next.tampilan.karakterKustom = config.tampilan.karakterKustom || [];
   const lokasiLama = JSON.stringify(config.cuaca || {});
   config = merge(structuredClone(DEFAULT), next);
   if (posisi) config.tampilan.posisi = posisi; else delete config.tampilan.posisi;
   config.widget = { ...(config.widget || {}) };
-  if (posWidget) config.widget.posisi = posWidget; else delete config.widget.posisi;
+  delete config.widget.posisi;                       // posisi lama (versi 1.6–1.8) tidak dipakai lagi
+  if (posKartu) config.widget.kartuPos = posKartu; else delete config.widget.kartuPos;
   if (JSON.stringify(config.cuaca || {}) !== lokasiLama) setTimeout(ambilCuaca, 500);
   saveConfigFile();
   applyConfig();
@@ -644,6 +685,7 @@ if (!app.requestSingleInstanceLock()) {
       { label: 'Tampilkan / Sembunyikan  (Ctrl+Alt+D)', click: toggleIsland },
       { label: 'Kembalikan pil ke tengah atas', click: resetPosisi },
       { label: 'Widget desktop: tampilkan  (Ctrl+Alt+W)', click: tampilkanWidget },
+      { label: 'Widget desktop: rapikan kartu', click: () => { tampilkanWidget(); rapikanKartu(); } },
       { label: 'Widget desktop: sembunyikan', click: sembunyikanWidget },
       { label: 'Panel Kelas…  (Ctrl+Alt+K)', click: () => openKelas() },
       { label: 'Pengaturan…  (Ctrl+Alt+S)', click: openSettings },
@@ -655,9 +697,10 @@ if (!app.requestSingleInstanceLock()) {
     globalShortcut.register('Control+Alt+D', toggleIsland);
     globalShortcut.register('Control+Alt+S', openSettings);
     globalShortcut.register('Control+Alt+K', () => openKelas());
-    globalShortcut.register('Control+Alt+W', () => (widget && widget.isVisible() ? sembunyikanWidget() : tampilkanWidget()));
+    globalShortcut.register('Control+Alt+W', () => (Object.values(widgets).some(w => w.isVisible()) ? sembunyikanWidget() : tampilkanWidget()));
 
-    screen.on('display-metrics-changed', placeIsland);
+    screen.on('display-metrics-changed', () => { placeIsland(); Object.values(widgets).forEach(jagaDiLayar); });
+    screen.on('display-removed', () => Object.values(widgets).forEach(jagaDiLayar));
     screen.on('display-added', placeIsland);
     screen.on('display-removed', placeIsland);
 

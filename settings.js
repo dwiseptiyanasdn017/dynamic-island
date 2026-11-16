@@ -54,11 +54,11 @@ function isiForm() {
   setVal('sh-lat', sh.lat ?? SH_BAWAAN.lat); setVal('sh-lon', sh.lon ?? SH_BAWAAN.lon);
   tampilSholat();
   const wg = cfg.widget || {};
-  setVal('wg-aktif', wg.aktif !== false); setVal('wg-k-sc', (wg.kartu || {}).sholatCuaca !== false); setVal('wg-k-jd', (wg.kartu || {}).jadwal !== false); setVal('wg-kunci', !!wg.kunci); setVal('wg-op', wg.transparansi || 90);
+  setVal('wg-aktif', wg.aktif !== false); setVal('wg-k-sc', (wg.kartu || {}).sholatCuaca !== false); setVal('wg-k-jd', (wg.kartu || {}).jadwal !== false); setVal('wg-k-kal', (wg.kartu || {}).kalender !== false); setVal('wg-kunci', !!wg.kunci); setVal('wg-op', wg.transparansi || 90);
   setVal('bkUrl', (cfg.bukukelas || {}).url || '');
   setVal('bkKey', (cfg.bukukelas || {}).anonKey || '');
   labelRange();
-  renderHari(); renderJadwal(); renderKhusus(); renderPintasan();
+  renderHari(); renderJadwal(); renderKhusus(); renderPintasan(); renderKaldik();
 }
 function labelRange() {
   $('#lebarVal').textContent = $('#lebarRingkas').value + ' px';
@@ -317,6 +317,28 @@ function barisKhusus(r = {}) {
 function renderKhusus() { $('#khususBody').innerHTML = ''; (cfg.pengingatKhusus || []).forEach(barisKhusus); }
 $('#addKhusus').addEventListener('click', () => barisKhusus());
 
+// ---------- Kalender pendidikan ----------
+const JENIS_KD = [['libur', 'Libur'], ['ujian', 'Asesmen / ujian'], ['kegiatan', 'Kegiatan'], ['rapor', 'Rapor']];
+function barisKaldik(r = {}) {
+  const tr = document.createElement('tr');
+  tr.innerHTML = `<td><input type="date" data-k="mulai" value="${esc(r.mulai || '')}"></td>
+    <td><input type="date" data-k="sampai" value="${esc(r.sampai && r.sampai !== r.mulai ? r.sampai : '')}"></td>
+    <td><input data-k="nama" value="${esc(r.nama || '')}" placeholder="Sumatif Akhir Semester (SAS) Ganjil"></td>
+    <td><select data-k="jenis">${JENIS_KD.map(([v, n]) => `<option value="${v}" ${(r.jenis || 'kegiatan') === v ? 'selected' : ''}>${n}</option>`).join('')}</select></td>
+    <td class="x"><button class="del" title="Hapus">✕</button></td>`;
+  tr.querySelector('.del').addEventListener('click', () => tr.remove());
+  $('#kaldikBody').appendChild(tr);
+}
+function renderKaldik() { $('#kaldikBody').innerHTML = ''; (cfg.kaldik || []).forEach(barisKaldik); }
+$('#addKaldik').addEventListener('click', () => barisKaldik());
+function bacaKaldik() {
+  return $$('#kaldikBody tr').map(tr => {
+    const v = k => tr.querySelector(`[data-k=${k}]`).value.trim();
+    const mulai = v('mulai'), sampai = v('sampai');
+    return { mulai, sampai: sampai && sampai > mulai ? sampai : mulai, nama: v('nama'), jenis: v('jenis') };
+  }).filter(x => x.mulai && x.nama).sort((a, b) => a.mulai.localeCompare(b.mulai));
+}
+
 // ---------- Pintasan ----------
 function barisPintasan(p = {}) {
   const tr = document.createElement('tr');
@@ -355,7 +377,7 @@ function kumpulkan() {
   cfg.umum.autostart = getVal('autostart');
   cfg.umum.sembunyiPresentasi = getVal('sembunyiPresentasi');
   cfg.umum.updateOtomatis = getVal('updateOtomatis'); cfg.umum.fiturMedia = getVal('fiturMedia'); cfg.umum.fiturKontrol = getVal('fiturKontrol');
-  cfg.widget = { ...(cfg.widget || {}), aktif: getVal('wg-aktif'), kunci: getVal('wg-kunci'), transparansi: getVal('wg-op') || 90, kartu: { sholatCuaca: getVal('wg-k-sc'), jadwal: getVal('wg-k-jd') } };
+  cfg.widget = { ...(cfg.widget || {}), aktif: getVal('wg-aktif'), kunci: getVal('wg-kunci'), transparansi: getVal('wg-op') || 90, kartu: { sholatCuaca: getVal('wg-k-sc'), jadwal: getVal('wg-k-jd'), kalender: getVal('wg-k-kal') } };
   cfg.sholat = { aktif: getVal('sh-aktif'), menitSebelum: getVal('sh-menit'), saatAdzan: getVal('sh-adzan'), lat: getVal('sh-lat'), lon: getVal('sh-lon') };
   cfg.bukukelas = { ...(cfg.bukukelas || {}), url: getVal('bkUrl').trim(), anonKey: getVal('bkKey').trim() };
   cfg.pengingatKhusus = $$('#khususBody tr').map(tr => ({
@@ -363,6 +385,7 @@ function kumpulkan() {
     teks: tr.querySelector('[data-k=teks]').value.trim(),
     hari: [...tr.querySelectorAll('.hari-chk input:checked')].map(c => Number(c.value))
   })).filter(r => r.jam && r.teks);
+  cfg.kaldik = bacaKaldik();
   cfg.pintasan = $$('#pintasanBody tr').map(tr => ({
     nama: tr.querySelector('[data-k=nama]').value.trim(),
     target: tr.querySelector('[data-k=target]').value.trim()
@@ -415,6 +438,7 @@ function tampilSholat() {
 ['sh-lat', 'sh-lon'].forEach(id => $('#' + id).addEventListener('input', tampilSholat));
 $('#sh-bawaan').addEventListener('click', () => { setVal('sh-lat', SH_BAWAAN.lat); setVal('sh-lon', SH_BAWAAN.lon); tampilSholat(); });
 $('#wg-reset').addEventListener('click', () => window.api.widgetReset());
+$('#wg-100').addEventListener('click', () => window.api.widgetSkala100());
 $('#cu-samakan').addEventListener('click', () => { setVal('cu-lat', getVal('sh-lat')); setVal('cu-lon', getVal('sh-lon')); });
 $('#resetPosisi').addEventListener('click', () => { window.api.resetPosisi(); status('Pil dikembalikan ke tengah atas'); });
 

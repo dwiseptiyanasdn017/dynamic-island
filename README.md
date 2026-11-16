@@ -16,6 +16,19 @@ Pil hitam di atas tengah layar, mirip Dynamic Island iPhone. Arahkan kursor ke p
 - **Pengingat**: pil membesar, berdenyut, dan berbunyi beberapa menit sebelum pelajaran mulai, saat mulai, dan saat selesai. Ada juga pengingat khusus (rapat, piket, setor nilai)
 - **Pengaturan**: warna dan tema, lebar, posisi, cara membuka (hover atau klik), jadwal, pengingat, pintasan, dan autostart
 
+## Kartu widget bebas dipindah & diubah ukurannya (versi 1.9)
+- Setiap kartu (Sholat & Cuaca, Jadwal, Kalender) kini **jendela tersendiri**: seret judulnya untuk memindahkan ke mana saja, termasuk ke monitor lain.
+- **Ubah ukuran** 70–160%: seret pojok kanan bawah kartu (pegangan muncul saat kursor di atas kartu), atau `Ctrl` + scroll di atas kartu. Klik dua kali pojok kanan bawah untuk kembali ke 100%. Isi kartu membesar proporsional sehingga tetap rapi.
+- Posisi dan ukuran tiap kartu diingat. Saat pertama kali dipakai, kartu disusun otomatis dari pojok kanan atas (lanjut ke kolom kiri bila tidak muat).
+- **Pengaturan → Widget Desktop**: kunci posisi & ukuran, *Rapikan kartu ke pojok kanan atas*, *Ukuran semua kartu 100%*. Menu tray juga punya *Widget desktop: rapikan kartu*.
+- Kartu yang tertinggal di luar layar (mis. setelah monitor kedua dicabut) otomatis ditarik kembali ke layar.
+
+## Kartu Kalender & Kalender Pendidikan (versi 1.8)
+- Widget desktop punya kartu **🗓️ Kalender**: satu bulan (Senin–Minggu) dengan tanda **merah** untuk Minggu dan libur nasional, **latar merah muda** untuk libur sekolah/semester, dan **garis warna** di bawah tanggal untuk agenda (ungu = asesmen, hijau = kegiatan, oranye = rapor). Hari ini diberi warna aksen. Tombol ‹ ● › untuk berpindah bulan; klik tanggal untuk melihat keterangannya. Bagian bawah menampilkan **3 agenda terdekat** beserta hitung mundurnya.
+- **Pengaturan → Kalender Pendidikan**: daftar agenda (mulai, sampai, kegiatan, jenis). Bawaannya sudah berisi Kalender Pendidikan SD Negeri 017 Titian Resak TA 2026/2027. Jenis **Libur** membuat jadwal pelajaran dan pengingat ikut diam pada hari itu.
+- Selama tahun ajaran yang diatur kalender pendidikan, **cuti bersama tidak dihitung libur** (mis. 5 Feb, 25 Mar, 18–19 Mei 2027 tetap masuk sesuai kaldik). Libur nasional tetap libur.
+- Tab Kalender di pil ikut menampilkan garis agenda kalender pendidikan.
+
 ## Kartu Jadwal pelajaran (versi 1.7)
 - Widget desktop kini punya kartu **📚 Jadwal**, di bawah kartu Sholat & Cuaca. Bagian atasnya menampilkan pelajaran **yang sedang berjalan** (jam ke-, bilah waktu, sisa menit, dan pelajaran sesudahnya), atau pelajaran **berikutnya** dengan hitung mundurnya. Di bawahnya ada daftar jadwal hari itu: yang sudah lewat dibuat redup, istirahat/upacara dimiringkan, dan tiap mapel diberi titik warna (sama dengan BukuKelas).
 - Setelah pelajaran terakhir selesai, saat hari Minggu, atau saat libur nasional/sekolah, kartu otomatis menampilkan **jadwal hari sekolah berikutnya** beserta alasannya (misalnya "Hari ini: Hari Minggu").

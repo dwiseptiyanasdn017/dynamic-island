@@ -87,6 +87,7 @@
     <a data-p="sholat">Jadwal Sholat</a>
     <a data-p="cuaca">Cuaca</a>
     <a data-p="widget">Widget Desktop</a>
+    <a data-p="kaldik">Kalender Pendidikan</a>
     <a data-p="pintasan">Pintasan</a>
     <a data-p="timer">Timer</a>
     <a data-p="umum">Umum</a>
@@ -284,18 +285,33 @@
       <!-- WIDGET DESKTOP -->
       <div class="pane" id="p-widget">
         <h2>Widget Desktop</h2>
-        <p class="hint">Kartu di desktop yang selalu terlihat tanpa membuka pil. Warnanya mengikuti tema di Tampilan. Seret judul kartu untuk memindahkannya; posisinya diingat.</p>
+        <p class="hint">Kartu di desktop yang selalu terlihat tanpa membuka pil. Warnanya mengikuti tema di Tampilan. Setiap kartu bisa <b>diseret lewat judulnya</b> ke mana saja, dan <b>diubah ukurannya</b> (70–160%) dengan menyeret pojok kanan bawah kartu atau <code>Ctrl</code> + scroll di atas kartu. Klik dua kali pojok kanan bawah untuk kembali ke 100%. Posisi dan ukuran tiap kartu diingat.</p>
         <div class="card grid">
           <span>Tampilkan widget di desktop</span><label class="chk"><input type="checkbox" id="wg-aktif"> Aktif</label>
-          <span>Kunci posisi (tidak bisa diseret)</span><label class="chk"><input type="checkbox" id="wg-kunci"> Kunci</label>
+          <span>Kunci posisi &amp; ukuran semua kartu</span><label class="chk"><input type="checkbox" id="wg-kunci"> Kunci</label>
           <span>Ketebalan latar (opasitas %)</span><span><input type="range" id="wg-op" min="40" max="100" step="5"> <b id="wgOpVal"></b></span>
         </div>
         <div class="card">
           <b>Kartu yang ditampilkan</b>
           <label class="chk"><input type="checkbox" id="wg-k-sc"> 🕌⛅ <b>Sholat &amp; Cuaca</b>: suhu, perkiraan 6 jam, 5 waktu sholat, hitung mundur sholat berikutnya</label>
           <label class="chk"><input type="checkbox" id="wg-k-jd"> 📚 <b>Jadwal pelajaran</b>: pelajaran sekarang dengan sisa waktu, lalu daftar hari ini. Setelah pelajaran selesai atau saat libur, otomatis menampilkan jadwal hari sekolah berikutnya</label>
+          <label class="chk"><input type="checkbox" id="wg-k-kal"> 🗓️ <b>Kalender</b>: satu bulan dengan tanda libur dan agenda kalender pendidikan, plus 3 agenda terdekat. Klik tanggal untuk melihat keterangannya</label>
           <p class="hint" style="margin:6px 0 0">Isinya mengikuti halaman Jadwal Mengajar, Jadwal Sholat, dan Cuaca. Libur sekolah dan warna mapel diambil dari BukuKelas bila sudah masuk.</p>
-          <button type="button" id="wg-reset" style="margin-top:10px">Kembalikan widget ke pojok kanan atas</button>
+          <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap"><button type="button" id="wg-reset">Rapikan kartu ke pojok kanan atas</button><button type="button" id="wg-100">Ukuran semua kartu 100%</button></div>
+        </div>
+      </div>
+
+      <!-- KALENDER PENDIDIKAN -->
+      <div class="pane" id="p-kaldik">
+        <h2>Kalender Pendidikan</h2>
+        <p class="hint">Agenda dari SK Kalender Pendidikan (Disdik Kab. Indragiri Hulu) dan agenda sekolah. Tampil bertanda warna di kartu Kalender widget dan tab Kalender pil. Jenis <b>Libur</b> membuat hari itu dianggap libur: jadwal pelajaran dan pengingat ikut diam. Libur nasional sudah otomatis; libur sekolah dari BukuKelas juga ikut terbaca.</p>
+        <div class="card">
+          <table>
+            <thead><tr><th style="width:150px">Mulai</th><th style="width:150px">Sampai</th><th>Kegiatan</th><th style="width:170px">Jenis</th><th class="x"></th></tr></thead>
+            <tbody id="kaldikBody"></tbody>
+          </table>
+          <button id="addKaldik" style="margin-top:10px">+ Tambah agenda</button>
+          <p class="hint" style="margin:10px 0 0">Warna: <b style="color:#ef4444">● Libur</b> · <b style="color:#8b5cf6">● Asesmen/ujian</b> · <b style="color:#10b981">● Kegiatan</b> · <b style="color:#f59e0b">● Rapor</b>. Kosongkan "Sampai" untuk agenda satu hari. Urutan otomatis menurut tanggal setelah disimpan.</p>
         </div>
       </div>
 

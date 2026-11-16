@@ -2,7 +2,16 @@
 * { box-sizing: border-box; }
 html, body { margin: 0; background: transparent; overflow: hidden; }
 body { font: 13px "Segoe UI", system-ui, sans-serif; color: var(--teks, #fff); user-select: none; }
-#tumpuk { padding: 8px; display: flex; flex-direction: column; gap: 10px; }
+#tumpuk { padding: 8px; display: inline-block; }
+.kartu { width: 300px; }
+.kartu[hidden] { display: none; }
+/* pegangan ubah ukuran di pojok kanan bawah: muncul saat kursor di atas kartu */
+.pegangan { position: absolute; right: 3px; bottom: 3px; width: 16px; height: 16px; cursor: nwse-resize; -webkit-app-region: no-drag; opacity: 0; transition: opacity .15s;
+  background: linear-gradient(135deg, transparent 50%, color-mix(in srgb, var(--teks) 45%, transparent) 50%, color-mix(in srgb, var(--teks) 45%, transparent) 58%, transparent 58%, transparent 70%, color-mix(in srgb, var(--teks) 45%, transparent) 70%, color-mix(in srgb, var(--teks) 45%, transparent) 78%, transparent 78%); border-bottom-right-radius: 14px; }
+.kartu:hover .pegangan, body.ubah .pegangan { opacity: 1; }
+body.kunci .pegangan { display: none; }
+#skala-lbl { position: absolute; right: 22px; bottom: 5px; font-size: 11px; font-weight: 600; padding: 1px 6px; border-radius: 6px; background: var(--aksen); color: var(--aksen-teks); opacity: 0; transition: opacity .15s; pointer-events: none; }
+body.ubah #skala-lbl { opacity: 1; }
 
 .kartu { position: relative; border-radius: 18px; padding: 14px 16px 12px; overflow: hidden; box-shadow: var(--cahaya); }
 /* latar di lapisan terpisah agar opasitas tidak ikut memudarkan tulisan */
@@ -64,4 +73,28 @@ button.ikon.putar { animation: putar .8s linear infinite; }
 #jd-list li.lewat { opacity: .4; }
 #jd-list li.kini { font-weight: 600; }
 #jd-list li.next .jam { opacity: 1; color: var(--aksen); font-weight: 600; }
-.jd-kosong { padding: 6px 0 2px; }
+#jd-list li.jd-kosong { display: block; padding: 6px 0 2px; }
+
+/* Kalender */
+.kal-nav { display: flex; gap: 2px; }
+.kal-nav .ikon { font-size: 16px; line-height: 1; padding: 2px 7px; }
+#kal-ini { font-size: 9px; }
+#kal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; text-align: center; font-size: 12px; }
+#kal-grid .hd { font-size: 10.5px; opacity: .6; padding-bottom: 3px; }
+#kal-grid .hd.mg { color: #ef4444; opacity: .85; }
+#kal-grid button { -webkit-app-region: no-drag; position: relative; border: 0; background: transparent; color: inherit; font: inherit; font-variant-numeric: tabular-nums; height: 27px; border-radius: 8px; cursor: pointer; padding: 0; }
+#kal-grid button:hover { background: color-mix(in srgb, var(--teks) 10%, transparent); }
+#kal-grid button.luar { opacity: .35; }
+#kal-grid button.libur { color: #ef4444; font-weight: 600; }
+#kal-grid button.blok { background: color-mix(in srgb, #ef4444 12%, transparent); }
+#kal-grid button.ag::after { content: ''; position: absolute; left: 22%; right: 22%; bottom: 3px; height: 3px; border-radius: 2px; background: var(--ag); }
+#kal-grid button.ini { background: var(--aksen); color: var(--aksen-teks); font-weight: 700; text-shadow: none; }
+#kal-grid button.pilih { box-shadow: inset 0 0 0 1.5px var(--aksen); }
+#kal-info { margin-top: 8px; padding-top: 8px; border-top: 1px solid color-mix(in srgb, var(--teks) 12%, transparent); font-size: 12px; }
+#kal-info .lbl { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; opacity: .6; margin-bottom: 4px; }
+#kal-info ul { list-style: none; margin: 0; padding: 0; }
+#kal-info li { display: grid; grid-template-columns: 10px 1fr auto; gap: 7px; align-items: baseline; padding: 3px 0; }
+#kal-info li .dot { width: 8px; height: 8px; border-radius: 50%; align-self: center; }
+#kal-info li .tg { font-size: 11px; opacity: .65; display: block; }
+#kal-info li .ss { font-size: 11.5px; color: var(--aksen); font-weight: 600; white-space: nowrap; }
+#kal-info .kosong { opacity: .6; }
