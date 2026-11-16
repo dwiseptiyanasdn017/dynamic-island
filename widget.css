@@ -42,3 +42,26 @@ button.ikon.putar { animation: putar .8s linear infinite; }
 #sh-list div b { display: block; font-size: 13px; margin-top: 1px; }
 #sh-list div.lewat { opacity: .45; }
 #sh-list div.next { background: var(--aksen); color: var(--aksen-teks); text-shadow: none; }
+
+/* Jadwal pelajaran */
+#jd-kini { margin-bottom: 8px; }
+#jd-kini:empty { display: none; }
+.jd-now { border-radius: 12px; padding: 9px 11px; background: color-mix(in srgb, var(--warna, var(--aksen)) 16%, transparent); border-left: 4px solid var(--warna, var(--aksen)); }
+.jd-now .lbl { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; opacity: .7; }
+.jd-now .mp { font-size: 15px; font-weight: 600; margin: 1px 0 6px; }
+.jd-now .bar { height: 5px; border-radius: 3px; background: color-mix(in srgb, var(--teks) 15%, transparent); overflow: hidden; }
+.jd-now .bar div { height: 100%; background: var(--warna, var(--aksen)); border-radius: 3px; }
+.jd-now .ft { display: flex; justify-content: space-between; font-size: 11.5px; margin-top: 4px; }
+#jd-list { list-style: none; margin: 0; padding: 0; }
+#jd-list li { display: grid; grid-template-columns: 76px 1fr auto; align-items: center; gap: 8px; padding: 5px 2px; border-radius: 8px; }
+#jd-list li + li { border-top: 1px solid color-mix(in srgb, var(--teks) 8%, transparent); }
+#jd-list .jam { font-variant-numeric: tabular-nums; font-size: 11.5px; opacity: .75; white-space: nowrap; }
+#jd-list .mp { display: flex; align-items: center; gap: 7px; min-width: 0; }
+#jd-list .mp span { line-height: 1.25; }
+#jd-list .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+#jd-list .jp { font-size: 11px; opacity: .6; }
+#jd-list li.rehat .mp { font-style: italic; opacity: .7; }
+#jd-list li.lewat { opacity: .4; }
+#jd-list li.kini { font-weight: 600; }
+#jd-list li.next .jam { opacity: 1; color: var(--aksen); font-weight: 600; }
+.jd-kosong { padding: 6px 0 2px; }

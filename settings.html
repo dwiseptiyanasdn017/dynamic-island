@@ -291,8 +291,10 @@
           <span>Ketebalan latar (opasitas %)</span><span><input type="range" id="wg-op" min="40" max="100" step="5"> <b id="wgOpVal"></b></span>
         </div>
         <div class="card">
-          <b>Kartu yang tersedia</b>
-          <p class="hint" style="margin:6px 0 0">🕌⛅ <b>Sholat &amp; Cuaca</b>: suhu, kondisi, perkiraan 6 jam ke depan, 5 waktu sholat, dan hitung mundur ke sholat berikutnya. Isinya mengikuti pengaturan di halaman Jadwal Sholat dan Cuaca.</p>
+          <b>Kartu yang ditampilkan</b>
+          <label class="chk"><input type="checkbox" id="wg-k-sc"> 🕌⛅ <b>Sholat &amp; Cuaca</b>: suhu, perkiraan 6 jam, 5 waktu sholat, hitung mundur sholat berikutnya</label>
+          <label class="chk"><input type="checkbox" id="wg-k-jd"> 📚 <b>Jadwal pelajaran</b>: pelajaran sekarang dengan sisa waktu, lalu daftar hari ini. Setelah pelajaran selesai atau saat libur, otomatis menampilkan jadwal hari sekolah berikutnya</label>
+          <p class="hint" style="margin:6px 0 0">Isinya mengikuti halaman Jadwal Mengajar, Jadwal Sholat, dan Cuaca. Libur sekolah dan warna mapel diambil dari BukuKelas bila sudah masuk.</p>
           <button type="button" id="wg-reset" style="margin-top:10px">Kembalikan widget ke pojok kanan atas</button>
         </div>
       </div>

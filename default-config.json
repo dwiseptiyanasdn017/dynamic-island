@@ -294,6 +294,10 @@
   "widget": {
     "aktif": true,
     "kunci": false,
-    "transparansi": 90
+    "transparansi": 90,
+    "kartu": {
+      "sholatCuaca": true,
+      "jadwal": true
+    }
   }
 }

@@ -16,6 +16,12 @@ Pil hitam di atas tengah layar, mirip Dynamic Island iPhone. Arahkan kursor ke p
 - **Pengingat**: pil membesar, berdenyut, dan berbunyi beberapa menit sebelum pelajaran mulai, saat mulai, dan saat selesai. Ada juga pengingat khusus (rapat, piket, setor nilai)
 - **Pengaturan**: warna dan tema, lebar, posisi, cara membuka (hover atau klik), jadwal, pengingat, pintasan, dan autostart
 
+## Kartu Jadwal pelajaran (versi 1.7)
+- Widget desktop kini punya kartu **📚 Jadwal**, di bawah kartu Sholat & Cuaca. Bagian atasnya menampilkan pelajaran **yang sedang berjalan** (jam ke-, bilah waktu, sisa menit, dan pelajaran sesudahnya), atau pelajaran **berikutnya** dengan hitung mundurnya. Di bawahnya ada daftar jadwal hari itu: yang sudah lewat dibuat redup, istirahat/upacara dimiringkan, dan tiap mapel diberi titik warna (sama dengan BukuKelas).
+- Setelah pelajaran terakhir selesai, saat hari Minggu, atau saat libur nasional/sekolah, kartu otomatis menampilkan **jadwal hari sekolah berikutnya** beserta alasannya (misalnya "Hari ini: Hari Minggu").
+- Kartu bisa dipilih di **Pengaturan → Widget Desktop**.
+- Perbaikan: bila kemungkinan hujan ada di jam yang sedang berjalan, kartu cuaca menulis "Hujan 55% sekarang", bukan jam yang sudah lewat.
+
 ## Widget desktop (versi 1.6)
 - **Kartu Sholat & Cuaca** menempel di desktop (bawaan: pojok kanan atas), tidak menutupi jendela lain. Isinya: suhu dan kondisi cuaca, perkiraan 6 jam ke depan (jam yang kemungkinan hujannya ≥ 50% diberi warna biru), 5 waktu sholat hari ini, dan hitung mundur ke sholat berikutnya. Selama 15 menit setelah masuk waktu, kartu menampilkan "Waktu … telah masuk". Hari Jumat, Dzuhur ditulis "Jumat".
 - Warna mengikuti tema pil. Seret judul kartu untuk memindahkan; posisi diingat. Atur di **Pengaturan → Widget Desktop** (aktif/nonaktif, kunci posisi, ketebalan latar, kembalikan ke pojok).

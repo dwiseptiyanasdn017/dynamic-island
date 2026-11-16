@@ -54,7 +54,7 @@ function isiForm() {
   setVal('sh-lat', sh.lat ?? SH_BAWAAN.lat); setVal('sh-lon', sh.lon ?? SH_BAWAAN.lon);
   tampilSholat();
   const wg = cfg.widget || {};
-  setVal('wg-aktif', wg.aktif !== false); setVal('wg-kunci', !!wg.kunci); setVal('wg-op', wg.transparansi || 90);
+  setVal('wg-aktif', wg.aktif !== false); setVal('wg-k-sc', (wg.kartu || {}).sholatCuaca !== false); setVal('wg-k-jd', (wg.kartu || {}).jadwal !== false); setVal('wg-kunci', !!wg.kunci); setVal('wg-op', wg.transparansi || 90);
   setVal('bkUrl', (cfg.bukukelas || {}).url || '');
   setVal('bkKey', (cfg.bukukelas || {}).anonKey || '');
   labelRange();
@@ -355,7 +355,7 @@ function kumpulkan() {
   cfg.umum.autostart = getVal('autostart');
   cfg.umum.sembunyiPresentasi = getVal('sembunyiPresentasi');
   cfg.umum.updateOtomatis = getVal('updateOtomatis'); cfg.umum.fiturMedia = getVal('fiturMedia'); cfg.umum.fiturKontrol = getVal('fiturKontrol');
-  cfg.widget = { ...(cfg.widget || {}), aktif: getVal('wg-aktif'), kunci: getVal('wg-kunci'), transparansi: getVal('wg-op') || 90 };
+  cfg.widget = { ...(cfg.widget || {}), aktif: getVal('wg-aktif'), kunci: getVal('wg-kunci'), transparansi: getVal('wg-op') || 90, kartu: { sholatCuaca: getVal('wg-k-sc'), jadwal: getVal('wg-k-jd') } };
   cfg.sholat = { aktif: getVal('sh-aktif'), menitSebelum: getVal('sh-menit'), saatAdzan: getVal('sh-adzan'), lat: getVal('sh-lat'), lon: getVal('sh-lon') };
   cfg.bukukelas = { ...(cfg.bukukelas || {}), url: getVal('bkUrl').trim(), anonKey: getVal('bkKey').trim() };
   cfg.pengingatKhusus = $$('#khususBody tr').map(tr => ({
