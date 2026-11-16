@@ -54,6 +54,54 @@
       <div id="kal-grid"></div>
       <div id="kal-info"></div>
     </section>
+    <!-- Kartu: Kelas hari ini (presensi + jurnal) -->
+    <section class="kartu" id="k-kh">
+      <header class="seret">
+        <div>
+          <div class="judul">🧒 Kelas <span id="kh-kelas"></span> hari ini</div>
+          <div id="kh-sub" class="muted kecil"></div>
+        </div>
+        <button class="ikon" id="kh-segar" title="Perbarui">⟳</button>
+      </header>
+      <div id="kh-isi"></div>
+    </section>
+
+    <!-- Kartu: Daftar tugas -->
+    <section class="kartu" id="k-tg">
+      <header class="seret">
+        <div>
+          <div class="judul">✅ Tugas</div>
+          <div id="tg-sub" class="muted kecil"></div>
+        </div>
+      </header>
+      <form id="tg-form" autocomplete="off">
+        <input id="tg-teks" placeholder="Tambah tugas…" maxlength="300">
+        <input id="tg-tgl" type="date" title="Tenggat (boleh kosong)">
+      </form>
+      <ul id="tg-list"></ul>
+      <button id="tg-selesai-tgl" class="tautan" hidden></button>
+      <ul id="tg-done" hidden></ul>
+    </section>
+
+    <!-- Kartu: Catatan cepat -->
+    <section class="kartu" id="k-ct">
+      <header class="seret">
+        <div class="judul">🗒️ Catatan</div>
+        <span id="ct-status" class="muted kecil"></span>
+      </header>
+      <textarea id="ct-teks" placeholder="Tulis catatan singkat di sini… tersimpan otomatis" maxlength="5000"></textarea>
+    </section>
+
+    <!-- Kartu: Ulang tahun siswa -->
+    <section class="kartu" id="k-ut">
+      <header class="seret">
+        <div>
+          <div class="judul">🎂 Ulang tahun siswa</div>
+          <div id="ut-sub" class="muted kecil"></div>
+        </div>
+      </header>
+      <ul id="ut-list"></ul>
+    </section>
   </div>
   <script src="shared.js"></script>
   <script src="widget.js"></script>

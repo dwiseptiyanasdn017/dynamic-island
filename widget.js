@@ -1,5 +1,5 @@
 'use strict';
-/* Widget desktop — kartu Sholat & Cuaca, Jadwal pelajaran, dan Kalender.
+/* Widget desktop — kartu Sholat & Cuaca, Jadwal, Kalender, Kelas hari ini, Tugas, Catatan, Ulang tahun.
    Memakai perhitungan sholat (Bersama.waktuSholat, kriteria Kemenag) dan data cuaca Open-Meteo yang sama dengan pulau. */
 const $ = s => document.querySelector(s);
 const B = window.Bersama;
@@ -8,7 +8,7 @@ const { pad, fmtMin, esc } = B;
 let cfg = null;
 // Setiap jendela widget hanya menampilkan satu kartu: ?kartu=sholatCuaca | jadwal | kalender
 const KARTU_INI = new URLSearchParams(location.search).get('kartu') || 'sholatCuaca';
-const ID_KARTU = { sholatCuaca: 'k-sc', jadwal: 'k-jd', kalender: 'k-kal' };
+const ID_KARTU = { sholatCuaca: 'k-sc', jadwal: 'k-jd', kalender: 'k-kal', kelasHariIni: 'k-kh', tugas: 'k-tg', catatan: 'k-ct', ulangTahun: 'k-ut' };
 let cuaca = null;
 let bkSt = null;   // status BukuKelas (untuk libur sekolah & warna mapel)
 
@@ -253,6 +253,166 @@ $('#kal-prev').addEventListener('click', () => geserBulan(-1));
 $('#kal-next').addEventListener('click', () => geserBulan(1));
 $('#kal-ini').addEventListener('click', () => { kalBulan = null; kalPilih = null; render(); });
 
+// ---------- Kelas hari ini: presensi + status jurnal ----------
+let khData = { tgl: '', absen: null, jurnal: null, waktu: 0, galat: '' };
+async function muatKelasHariIni(paksa) {
+  const t = B.tglStr(new Date());
+  if (!bkData() || (!paksa && khData.tgl === t && Date.now() - khData.waktu < 2 * 60 * 1000)) return;
+  khData.waktu = Date.now();
+  try {
+    const [absen, jurnal] = await Promise.all([window.api.bk.absen(t), window.api.bk.jurnal(t)]);
+    const ambil = r => { if (r && typeof r === 'object' && 'ok' in r) { if (!r.ok) throw new Error(r.galat || 'gagal'); return r.hasil; } return r; };
+    khData = { tgl: t, absen: ambil(absen) || {}, jurnal: ambil(jurnal) || [], waktu: Date.now(), galat: '' };
+  } catch (e) { khData.galat = String(e.message || e); }
+  render();
+}
+function renderKelasHariIni(d) {
+  const box = $('#k-kh');
+  if (!kartuAktif('kelasHariIni')) { box.hidden = true; return; }
+  box.hidden = false;
+  const data = bkData();
+  $('#kh-kelas').textContent = data && data.kelas ? data.kelas : '';
+  const t = B.tglStr(d), info = B.infoHari(t, data ? data.presensi : null);
+  $('#kh-sub').textContent = `${B.HARI[d.getDay()]}, ${d.getDate()} ${B.BULAN[d.getMonth()]}` + (info.sekolah ? '' : ` · Libur: ${info.alasan}`);
+  if (!data) {
+    $('#kh-isi').innerHTML = `<div class="kosong-kecil">${bkSt && bkSt.siapKonfig === false ? 'BukuKelas belum disambungkan.' : 'Masuk ke BukuKelas di Panel Kelas untuk melihat presensi dan jurnal.'}</div>
+      <div class="kh-aksi"><button class="tombol utama" data-buka="presensi">Buka Panel Kelas</button></div>`;
+    return;
+  }
+  if (khData.tgl !== t) { muatKelasHariIni(); }
+  const siswa = data.siswa || [];
+  const absen = khData.tgl === t && khData.absen ? khData.absen : (data.tgl === t ? data.absen || {} : {});
+  const hit = { 1: [], 2: [], 3: [] };
+  siswa.forEach(sw => { const v = absen[sw.id]; if (hit[v]) hit[v].push(sw); });
+  const tdk = hit[1].length + hit[2].length + hit[3].length;
+  let html = `<div class="kh-rekap">
+    <div class="h"><b>${info.sekolah ? siswa.length - tdk : '–'}</b><span>Hadir</span></div>
+    <div class="s"><b>${hit[1].length}</b><span>Sakit</span></div>
+    <div class="i"><b>${hit[2].length}</b><span>Izin</span></div>
+    <div class="a"><b>${hit[3].length}</b><span>Alpa</span></div></div>`;
+  if (tdk) html += `<div class="kh-absen">${[[1, 's', 'S'], [2, 'i', 'I'], [3, 'a', 'A']].map(([k, c, l]) =>
+      hit[k].map(sw => `<span style="white-space:nowrap"><span class="tag ${c}">${l}</span>${esc(sw.panggilan || sw.nama)}</span>`).join(' &nbsp;')).filter(Boolean).join(' &nbsp;')}</div>`;
+  else if (info.sekolah) html += `<div class="kh-absen muted">Semua ${siswa.length} siswa tercatat hadir.</div>`;
+
+  // status jurnal: tiap pelajaran hari ini dicocokkan dengan jurnal yang sudah ditulis
+  const pel = info.sekolah ? B.jadwalHari(cfg, d).filter(x => x.pelajaran) : [];
+  if (pel.length) {
+    const jurnal = khData.tgl === t && khData.jurnal ? khData.jurnal : [];
+    const n = d.getHours() * 60 + d.getMinutes();
+    const terisi = new Set(jurnal.map(j => j.mapel));
+    const baris = pel.map(x => {
+      const m = B.cocokMapel(x.mapel, data.struktur, (cfg.bukukelas || {}).mapelJadwal);
+      const ok = m && terisi.has(m.id);
+      const blmMulai = n < x.s;
+      return `<div class="baris"><span class="${ok ? 'ok' : 'blm'}">${ok ? '✓' : '○'}</span><span>${esc(x.mapel)}</span>
+        ${ok ? '<span class="muted kecil">terisi</span>' : (blmMulai ? `<span class="muted kecil">${fmtMin(x.s)}</span>` : `<button class="tautan" style="padding:0" data-buka="jurnal" data-mapel="${m ? esc(m.id) : ''}">Isi</button>`)}</div>`;
+    });
+    const jumlahOk = pel.filter(x => { const m = B.cocokMapel(x.mapel, data.struktur, (cfg.bukukelas || {}).mapelJadwal); return m && terisi.has(m.id); }).length;
+    html += `<div class="kh-jurnal"><div class="muted kecil" style="margin-bottom:3px">JURNAL MENGAJAR · ${jumlahOk}/${pel.length} terisi</div>${baris.join('')}</div>`;
+  }
+  if (khData.galat) html += `<div class="kosong-kecil" style="color:#dc2626">Gagal memuat: ${esc(khData.galat)}</div>`;
+  html += `<div class="kh-aksi"><button class="tombol" data-buka="presensi">Presensi</button><button class="tombol" data-buka="jurnal">Jurnal</button></div>`;
+  $('#kh-isi').innerHTML = html;
+}
+$('#kh-isi').addEventListener('click', e => {
+  const b = e.target.closest('[data-buka]'); if (!b) return;
+  const arg = { tab: b.dataset.buka };
+  if (arg.tab === 'jurnal') { arg.tgl = B.tglStr(new Date()); if (b.dataset.mapel) arg.mapel = b.dataset.mapel; }
+  window.api.openKelas(arg);
+});
+$('#kh-segar').addEventListener('click', () => { muatKelasHariIni(true); window.api.bk.muat(); });
+
+// ---------- Daftar tugas ----------
+let tugasBukaSelesai = false;
+const tugasList = () => Array.isArray(cfg.tugas) ? cfg.tugas : [];
+function simpanTugas(list) { cfg.tugas = list; window.api.simpanTugas(list); render(); }
+function tenggatTeks(t, hariIni) {
+  if (!t) return ['', ''];
+  const n = Math.round((B.keDate(t) - B.keDate(hariIni)) / 864e5);
+  if (n < 0) return [`lewat ${-n} hr`, 'lewat'];
+  if (n === 0) return ['hari ini', 'hari'];
+  if (n === 1) return ['besok', ''];
+  const x = B.keDate(t);
+  return [n < 7 ? B.HARI[x.getDay()] : `${x.getDate()} ${BLN3[x.getMonth()]}`, ''];
+}
+function renderTugas(d) {
+  const box = $('#k-tg');
+  if (!kartuAktif('tugas')) { box.hidden = true; return; }
+  box.hidden = false;
+  const hariIni = B.tglStr(d);
+  const semua = tugasList();
+  const aktif = semua.filter(x => !x.selesai).sort((a, b) => (a.tenggat || '9999').localeCompare(b.tenggat || '9999') || a.waktu - b.waktu);
+  const selesai = semua.filter(x => x.selesai).sort((a, b) => b.waktu - a.waktu);
+  const lewat = aktif.filter(x => x.tenggat && x.tenggat < hariIni).length, hari = aktif.filter(x => x.tenggat === hariIni).length;
+  $('#tg-sub').textContent = aktif.length ? [`${aktif.length} belum selesai`, lewat ? `${lewat} lewat tenggat` : '', hari ? `${hari} hari ini` : ''].filter(Boolean).join(' · ') : 'Semua tugas selesai 🎉';
+  const baris = x => {
+    const [tt, kls] = tenggatTeks(x.tenggat, hariIni);
+    return `<li data-id="${esc(x.id)}"><input type="checkbox" ${x.selesai ? 'checked' : ''}><span class="tg-teks">${esc(x.teks)}</span>
+      <span class="tg-tgl ${x.selesai ? '' : kls}">${x.selesai ? '' : tt}</span><button class="tg-hapus" title="Hapus">✕</button></li>`;
+  };
+  // jangan ganggu bila sedang mengetik di kartu
+  $('#tg-list').innerHTML = aktif.length ? aktif.map(baris).join('') : '<li class="kosong-kecil" style="display:block">Belum ada tugas.</li>';
+  const tb = $('#tg-selesai-tgl');
+  tb.hidden = !selesai.length;
+  tb.textContent = `${tugasBukaSelesai ? '▾' : '▸'} Selesai (${selesai.length})`;
+  $('#tg-done').hidden = !tugasBukaSelesai || !selesai.length;
+  $('#tg-done').innerHTML = selesai.slice(0, 30).map(baris).join('') + (selesai.length ? '<li style="display:block;opacity:1"><button class="tautan" id="tg-bersih">Hapus semua yang selesai</button></li>' : '');
+}
+$('#tg-form').addEventListener('submit', e => {
+  e.preventDefault();
+  const teks = $('#tg-teks').value.trim(); if (!teks) return;
+  simpanTugas([...tugasList(), { id: Date.now().toString(36), teks, tenggat: $('#tg-tgl').value, selesai: false, waktu: Date.now() }]);
+  $('#tg-teks').value = ''; $('#tg-tgl').value = '';
+});
+$('#tg-tgl').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); $('#tg-form').requestSubmit(); } });
+$('#k-tg').addEventListener('click', e => {
+  if (e.target.id === 'tg-selesai-tgl') { tugasBukaSelesai = !tugasBukaSelesai; render(); return; }
+  if (e.target.id === 'tg-bersih') { simpanTugas(tugasList().filter(x => !x.selesai)); return; }
+  const li = e.target.closest('li[data-id]'); if (!li) return;
+  const id = li.dataset.id;
+  if (e.target.classList.contains('tg-hapus')) simpanTugas(tugasList().filter(x => x.id !== id));
+  else if (e.target.type === 'checkbox') simpanTugas(tugasList().map(x => x.id === id ? { ...x, selesai: e.target.checked, waktu: Date.now() } : x));
+});
+
+// ---------- Catatan cepat ----------
+let tCatatan = null;
+function renderCatatan() {
+  const box = $('#k-ct');
+  if (!kartuAktif('catatan')) { box.hidden = true; return; }
+  box.hidden = false;
+  const ta = $('#ct-teks');
+  if (document.activeElement !== ta && ta.value !== (cfg.catatan || '')) ta.value = cfg.catatan || '';
+}
+$('#ct-teks').addEventListener('input', () => {
+  $('#ct-status').textContent = 'menyimpan…';
+  clearTimeout(tCatatan);
+  tCatatan = setTimeout(() => { cfg.catatan = $('#ct-teks').value; window.api.simpanCatatan(cfg.catatan); $('#ct-status').textContent = 'tersimpan'; setTimeout(() => { $('#ct-status').textContent = ''; }, 1500); }, 500);
+});
+
+// ---------- Ulang tahun siswa ----------
+function renderUlangTahun(d) {
+  const box = $('#k-ut');
+  if (!kartuAktif('ulangTahun')) { box.hidden = true; return; }
+  box.hidden = false;
+  const data = bkData();
+  if (!data) { $('#ut-sub').textContent = ''; $('#ut-list').innerHTML = '<li class="kosong-kecil" style="display:block">Masuk ke BukuKelas di Panel Kelas untuk melihat ulang tahun siswa.</li>'; return; }
+  const ada = (data.siswa || []).filter(x => x.lahir);
+  if (!ada.length) { $('#ut-sub').textContent = ''; $('#ut-list').innerHTML = '<li class="kosong-kecil" style="display:block">Tanggal lahir siswa belum diisi. Isi di BukuKelas → Data Siswa (biodata).</li>'; return; }
+  const h0 = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const daftar = ada.map(x => {
+    const [y, m, dd] = x.lahir.split('-').map(Number);
+    let ul = new Date(d.getFullYear(), m - 1, dd);
+    if (ul < h0) ul = new Date(d.getFullYear() + 1, m - 1, dd);
+    return { x, ul, sisa: Math.round((ul - h0) / 864e5), umur: ul.getFullYear() - y };
+  }).sort((a, b) => a.sisa - b.sisa);
+  const dekat = daftar.filter(u => u.sisa <= 7);
+  const tampil = dekat.length ? dekat : daftar.slice(0, 1);
+  $('#ut-sub').textContent = dekat.length ? 'Dalam 7 hari ke depan' : 'Berikutnya';
+  $('#ut-list').innerHTML = tampil.map(u => `<li class="${u.sisa === 0 ? 'hari' : ''}"><span>${u.sisa === 0 ? '🎉 ' : ''}${esc(u.x.lengkap || u.x.nama)} <span class="muted kecil">· ${u.umur} th</span></span>
+    <span class="ut-tgl">${u.sisa === 0 ? 'hari ini' : u.sisa === 1 ? 'besok' : `${B.HARI[u.ul.getDay()]}, ${u.ul.getDate()} ${BLN3[u.ul.getMonth()]}`}</span></li>`).join('')
+    + `<li class="kosong-kecil" style="display:block">${ada.length} dari ${(data.siswa || []).length} siswa punya tanggal lahir</li>`;
+}
+
 // ---------- Render ----------
 function render() {
   if (!cfg) return;
@@ -271,6 +431,10 @@ function render() {
   } else $('#k-sc').hidden = true;
   renderJadwal(d, n);
   renderKalender(d);
+  renderKelasHariIni(d);
+  renderTugas(d);
+  renderCatatan();
+  renderUlangTahun(d);
 }
 
 // Ukuran jendela mengikuti isi kartu
@@ -340,7 +504,7 @@ $('#sc-segar').addEventListener('click', () => {
 });
 
 window.api.onConfig(c => { cfg = c; applyTheme(); skalaDariConfig(); render(); });
-window.api.bk.onStatus(st => { bkSt = st; render(); });
+window.api.bk.onStatus(st => { bkSt = st; if (KARTU_INI === 'kelasHariIni') muatKelasHariIni(true); render(); });
 window.api.onCuaca(c => { cuaca = c; $('#sc-segar').classList.remove('putar'); render(); });
 
 (async () => {

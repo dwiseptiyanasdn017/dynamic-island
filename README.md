@@ -16,6 +16,13 @@ Pil hitam di atas tengah layar, mirip Dynamic Island iPhone. Arahkan kursor ke p
 - **Pengingat**: pil membesar, berdenyut, dan berbunyi beberapa menit sebelum pelajaran mulai, saat mulai, dan saat selesai. Ada juga pengingat khusus (rapat, piket, setor nilai)
 - **Pengaturan**: warna dan tema, lebar, posisi, cara membuka (hover atau klik), jadwal, pengingat, pintasan, dan autostart
 
+## Kartu Kelas hari ini, Tugas, Catatan, Ulang tahun (versi 1.11)
+- **🧒 Kelas hari ini**: rekap presensi kelas (hadir, sakit, izin, alpa) beserta nama siswa yang tidak hadir, dan status **jurnal mengajar** tiap pelajaran hari ini (✓ terisi, tombol *Isi* untuk pelajaran yang sudah lewat). Tombol Presensi/Jurnal membuka Panel Kelas. Data dari BukuKelas, diperbarui tiap 2 menit.
+- **✅ Tugas**: tambah tugas (Enter) dengan tenggat opsional, centang bila selesai, hapus dengan ✕. Urut menurut tenggat; merah = lewat tenggat, oranye = hari ini. Tugas yang jatuh tempo diingatkan di pil sekali sehari mulai pukul 07.00.
+- **🗒️ Catatan**: catatan singkat, tersimpan otomatis.
+- **🎂 Ulang tahun siswa**: siswa yang berulang tahun dalam 7 hari ke depan beserta umurnya, dari tanggal lahir di biodata BukuKelas (menu Data Siswa).
+- Kartu baru ditempatkan otomatis di ruang kosong tanpa menggeser kartu yang sudah diatur. Semua kartu bisa dimatikan di **Pengaturan → Widget Desktop**.
+
 ## Widget di lapisan desktop ala macOS (versi 1.10)
 - Kartu widget kini **selalu berada di bawah semua jendela aplikasi**, seperti widget di macOS: tidak pernah menutupi Word, Chrome, dan lainnya, dan tetap di bawah walau diklik atau diseret. Kartu terlihat saat area desktop kosong.
 - Memakai `koffi` (pustaka FFI tanpa kompilasi) untuk memanggil fungsi Windows `SetWindowPos(HWND_BOTTOM)`. Bila gagal dimuat, kartu tetap berfungsi seperti versi sebelumnya.

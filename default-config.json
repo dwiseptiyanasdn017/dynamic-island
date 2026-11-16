@@ -298,7 +298,11 @@
     "kartu": {
       "sholatCuaca": true,
       "jadwal": true,
-      "kalender": true
+      "kalender": true,
+      "kelasHariIni": true,
+      "tugas": true,
+      "catatan": true,
+      "ulangTahun": true
     }
   },
   "kaldik": [
@@ -428,5 +432,7 @@
       "nama": "Awal Tahun Ajaran 2027/2028",
       "jenis": "kegiatan"
     }
-  ]
+  ],
+  "tugas": [],
+  "catatan": ""
 }

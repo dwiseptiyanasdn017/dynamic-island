@@ -9,6 +9,7 @@
  *                            presensi : mapel_id "_absen", kunci "YYYY-MM-DD", nilai 1=S 2=I 3=A (null = hadir)
  *  - nh_catatan            : jurnal  -> siswa_id "_jurnal", kunci "YYYY-MM-DD|j<uid>", teks JSON
  *                            panggilan -> siswa_id <id>, kunci "panggilan"
+ *                            biodata   -> siswa_id <id>, kunci "biodata", teks JSON (dibaca: tgl = tanggal lahir)
  * Hanya baris nilai/catatan yang ditulis; nh_struktur dan nh_siswa tidak pernah diubah dari sini.
  */
 const fs = require('fs');
@@ -144,9 +145,12 @@ class BukuKelas {
       if (st.error) throw st.error;
       const sw = await this.sb.from('nh_siswa').select('id,nama,urut').order('urut').order('id');
       if (sw.error) throw sw.error;
-      const pg = await this.sb.from('nh_catatan').select('siswa_id,teks').eq('kunci', 'panggilan');
-      const panggilan = {};
-      if (!pg.error) pg.data.forEach(r => { panggilan[r.siswa_id] = r.teks; });
+      const pg = await this.sb.from('nh_catatan').select('siswa_id,kunci,teks').in('kunci', ['panggilan', 'biodata']);
+      const panggilan = {}, lahir = {};
+      if (!pg.error) pg.data.forEach(r => {
+        if (r.kunci === 'panggilan') panggilan[r.siswa_id] = r.teks;
+        else { try { const b = JSON.parse(r.teks || '{}') || {}; if (/^\d{4}-\d{2}-\d{2}$/.test(b.tgl || '')) lahir[r.siswa_id] = b.tgl; } catch { /* biodata rusak diabaikan */ } }
+      });
 
       const identitas = { ...IDENT_DEFAULT, ...((st.data && st.data.identitas) || {}) };
       const peta = normStruktur(st.data && st.data.data);
@@ -157,7 +161,7 @@ class BukuKelas {
       const presensiCfg = (semId === SEM_DASAR ? identitas.presensi : ((identitas.semCfg || {})[semId] || {}).presensi) || {};
 
       const siswa = sw.data
-        .map(s => ({ id: s.id, nama: s.nama, urut: s.urut, lengkap: namaRapi(String(s.nama).trim().replace(/\s+/g, ' ')), panggilan: panggilan[s.id] || namaRapi(String(s.nama).trim().split(/\s+/)[0] || '') }))
+        .map(s => ({ id: s.id, nama: s.nama, urut: s.urut, lengkap: namaRapi(String(s.nama).trim().replace(/\s+/g, ' ')), panggilan: panggilan[s.id] || namaRapi(String(s.nama).trim().split(/\s+/)[0] || ''), lahir: lahir[s.id] || '' }))
         .sort((a, b) => (a.urut - b.urut) || a.nama.localeCompare(b.nama));
 
       const struktur = (peta[semId] || []).map(m => ({

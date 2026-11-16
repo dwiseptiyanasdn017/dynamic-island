@@ -269,7 +269,7 @@ function tampilDiBawah(win) { if (!win || win.isDestroyed()) return; win.showIna
 // Setiap kartu adalah jendela transparan tersendiri di belakang jendela lain: bisa diseret ke mana saja
 // lewat judulnya, dan diperbesar/diperkecil (70–160%) lewat pojok kanan bawah atau Ctrl+scroll.
 // Posisi dan skala tiap kartu disimpan di config.widget.kartuPos[id] = { x, y, skala }.
-const KARTU_WIDGET = ['sholatCuaca', 'jadwal', 'kalender'];
+const KARTU_WIDGET = ['sholatCuaca', 'jadwal', 'kalender', 'kelasHariIni', 'tugas', 'catatan', 'ulangTahun'];
 let perluRapikan = false;
 const wcfg = () => (config.widget = config.widget || {});
 const kartuPos = id => ((wcfg().kartuPos || {})[id]) || {};
@@ -283,7 +283,8 @@ function createKartu(id) {
   if (widgets[id] || quitting) return;
   const p = kartuPos(id);
   const ada = Number.isFinite(p.x) && Number.isFinite(p.y);
-  if (!ada) perluRapikan = true;
+  // belum punya posisi: bila semua kartu baru (pemakaian pertama) susun semuanya; bila ada kartu lama, cari tempat kosong
+  const adaKartuLama = KARTU_WIDGET.some(k => k !== id && Number.isFinite(kartuPos(k).x));
   const wa = screen.getPrimaryDisplay().workArea;
   const win = new BrowserWindow({
     x: ada ? p.x : wa.x + wa.width - 330, y: ada ? p.y : wa.y + 12, width: 316, height: 200,
@@ -295,6 +296,8 @@ function createKartu(id) {
   });
   win.kartuId = id;
   win.ukuranSiap = false;
+  win.perluTempat = !ada && adaKartuLama;
+  if (!ada && !adaKartuLama) perluRapikan = true;
   widgets[id] = win;
   win.loadFile('widget.html', { query: { kartu: id } });
   win.once('ready-to-show', () => tampilDiBawah(win));
@@ -321,6 +324,32 @@ function jagaDiLayar(win) {
   const wa = screen.getDisplayMatching(b).workArea;
   const x = clamp(b.x, wa.x - b.width + 80, wa.x + wa.width - 80), y = clamp(b.y, wa.y, wa.y + wa.height - 60);
   if (x !== b.x || y !== b.y) win.setPosition(x, y);
+}
+// Perkiraan tinggi penuh tiap kartu (px, skala 100%) agar ruang yang disediakan cukup walau datanya belum termuat.
+const TINGGI_PERKIRAAN = { sholatCuaca: 420, jadwal: 300, kalender: 440, kelasHariIni: 300, tugas: 280, catatan: 190, ulangTahun: 170 };
+function tempatkanBaru() {
+  for (const id of KARTU_WIDGET) {
+    const win = widgets[id];
+    if (!win || win.isDestroyed() || !win.perluTempat) continue;
+    const t = tempatKosong(win);
+    win.perluTempat = false;
+    win.setPosition(t.x, t.y); simpanKartuPos(id, t); tampilDiBawah(win);
+  }
+}
+/** Cari posisi kosong untuk kartu baru: kolom dari kanan ke kiri, dari atas ke bawah, tidak menimpa kartu lain. */
+function tempatKosong(win) {
+  const wa = screen.getPrimaryDisplay().workArea;
+  const skala = Number(kartuPos(win.kartuId).skala) || 1;
+  const [w, hNyata] = win.getSize();
+  const tinggiPenuh = b => Math.max(b.height, Math.round((TINGGI_PERKIRAAN[b.id] || 0) * (Number(kartuPos(b.id).skala) || 1)));
+  const h = Math.max(hNyata, Math.round((TINGGI_PERKIRAAN[win.kartuId] || 0) * skala));
+  const lain = Object.values(widgets).filter(x => x !== win && !x.isDestroyed() && !x.perluTempat)
+    .map(x => { const b = { ...x.getBounds(), id: x.kartuId }; return { ...b, height: tinggiPenuh(b) }; });
+  const tabrak = (x, y) => lain.some(b => x + 8 < b.x + b.width - 8 && x + w - 8 > b.x + 8 && y + 8 < b.y + b.height - 8 && y + h - 8 > b.y + 8);
+  for (let x = wa.x + wa.width - 12 - w; x >= wa.x; x -= 20) {
+    for (let y = wa.y + 12; y + h <= wa.y + wa.height; y += 20) if (!tabrak(x, y)) return { x, y };
+  }
+  return { x: wa.x + Math.round((wa.width - w) / 2), y: wa.y + 40 };   // layar penuh: taruh di tengah
 }
 /** Susun semua kartu dari pojok kanan atas ke bawah; bila tidak muat, lanjut ke kolom di sebelah kirinya. */
 function rapikanKartu() {
@@ -357,6 +386,10 @@ ipcMain.on('widget:ukuran', (e, w, h) => {
     // jendela berukuran tetap mengabaikan setSize di sebagian sistem, jadi buka kuncinya sebentar
     win.setResizable(true); win.setSize(lebar, tinggi); win.setResizable(false); keBawah(win);
   }
+  if (win.perluTempat) {
+    // tunggu sebentar agar semua kartu baru sudah melapor, lalu tempatkan satu per satu
+    clearTimeout(tempatkanBaru.t); tempatkanBaru.t = setTimeout(tempatkanBaru, 2500);
+  }
   if (!win.ukuranSiap) {
     win.ukuranSiap = true;
     if (perluRapikan && Object.values(widgets).every(x => x.ukuranSiap)) {
@@ -370,6 +403,18 @@ ipcMain.on('widget:skala', (e, skala) => {
   if (win && angka(skala)) simpanKartuPos(win.kartuId, { skala: clamp(Math.round(Number(skala) * 100) / 100, 0.7, 1.6) });
 });
 ipcMain.on('widget:reset', () => rapikanKartu());
+// Daftar tugas & catatan cepat disimpan di config agar ikut tersimpan dan terbaca semua jendela
+ipcMain.on('tugas:simpan', (e, list) => {
+  if (!Array.isArray(list)) return;
+  config.tugas = list.filter(t => t && typeof t.teks === 'string' && t.teks.trim()).slice(0, 200)
+    .map(t => ({ id: String(t.id || Date.now()), teks: t.teks.trim().slice(0, 300), tenggat: /^\d{4}-\d{2}-\d{2}$/.test(t.tenggat || '') ? t.tenggat : '', selesai: !!t.selesai, waktu: Number(t.waktu) || Date.now() }));
+  saveConfigFile(); broadcast('cfg:updated', config);
+});
+ipcMain.on('catatan:simpan', (e, teks) => {
+  config.catatan = String(teks || '').slice(0, 5000);
+  saveConfigFile();
+  BrowserWindow.getAllWindows().forEach(w => { if (w.webContents !== e.sender && !w.isDestroyed()) w.webContents.send('cfg:updated', config); });
+});
 ipcMain.on('widget:skala100', () => {
   for (const id of KARTU_WIDGET) simpanKartuPos(id, { skala: 1 });
   broadcast('cfg:updated', config);
@@ -670,6 +715,7 @@ ipcMain.handle('cfg:default', () => structuredClone(DEFAULT));
 ipcMain.handle('cfg:save', (e, next) => {
   const posisi = config.tampilan.posisi; // posisi pil hanya diubah lewat seret / tombol kembalikan
   const posKartu = (config.widget || {}).kartuPos;
+  const tugasLama = config.tugas, catatanLama = config.catatan;   // hanya diubah lewat kartunya sendiri
   if (next && next.tampilan) next.tampilan.karakterKustom = config.tampilan.karakterKustom || [];
   const lokasiLama = JSON.stringify(config.cuaca || {});
   config = merge(structuredClone(DEFAULT), next);
@@ -677,6 +723,7 @@ ipcMain.handle('cfg:save', (e, next) => {
   config.widget = { ...(config.widget || {}) };
   delete config.widget.posisi;                       // posisi lama (versi 1.6–1.8) tidak dipakai lagi
   if (posKartu) config.widget.kartuPos = posKartu; else delete config.widget.kartuPos;
+  config.tugas = tugasLama || []; config.catatan = catatanLama || '';
   if (JSON.stringify(config.cuaca || {}) !== lokasiLama) setTimeout(ambilCuaca, 500);
   saveConfigFile();
   applyConfig();

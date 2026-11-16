@@ -54,7 +54,7 @@ function isiForm() {
   setVal('sh-lat', sh.lat ?? SH_BAWAAN.lat); setVal('sh-lon', sh.lon ?? SH_BAWAAN.lon);
   tampilSholat();
   const wg = cfg.widget || {};
-  setVal('wg-aktif', wg.aktif !== false); setVal('wg-k-sc', (wg.kartu || {}).sholatCuaca !== false); setVal('wg-k-jd', (wg.kartu || {}).jadwal !== false); setVal('wg-k-kal', (wg.kartu || {}).kalender !== false); setVal('wg-kunci', !!wg.kunci); setVal('wg-op', wg.transparansi || 90);
+  setVal('wg-aktif', wg.aktif !== false); setVal('wg-k-sc', (wg.kartu || {}).sholatCuaca !== false); setVal('wg-k-jd', (wg.kartu || {}).jadwal !== false); setVal('wg-k-kal', (wg.kartu || {}).kalender !== false); setVal('wg-k-kh', (wg.kartu || {}).kelasHariIni !== false); setVal('wg-k-tg', (wg.kartu || {}).tugas !== false); setVal('wg-k-ct', (wg.kartu || {}).catatan !== false); setVal('wg-k-ut', (wg.kartu || {}).ulangTahun !== false); setVal('wg-kunci', !!wg.kunci); setVal('wg-op', wg.transparansi || 90);
   setVal('bkUrl', (cfg.bukukelas || {}).url || '');
   setVal('bkKey', (cfg.bukukelas || {}).anonKey || '');
   labelRange();
@@ -377,7 +377,7 @@ function kumpulkan() {
   cfg.umum.autostart = getVal('autostart');
   cfg.umum.sembunyiPresentasi = getVal('sembunyiPresentasi');
   cfg.umum.updateOtomatis = getVal('updateOtomatis'); cfg.umum.fiturMedia = getVal('fiturMedia'); cfg.umum.fiturKontrol = getVal('fiturKontrol');
-  cfg.widget = { ...(cfg.widget || {}), aktif: getVal('wg-aktif'), kunci: getVal('wg-kunci'), transparansi: getVal('wg-op') || 90, kartu: { sholatCuaca: getVal('wg-k-sc'), jadwal: getVal('wg-k-jd'), kalender: getVal('wg-k-kal') } };
+  cfg.widget = { ...(cfg.widget || {}), aktif: getVal('wg-aktif'), kunci: getVal('wg-kunci'), transparansi: getVal('wg-op') || 90, kartu: { sholatCuaca: getVal('wg-k-sc'), jadwal: getVal('wg-k-jd'), kalender: getVal('wg-k-kal'), kelasHariIni: getVal('wg-k-kh'), tugas: getVal('wg-k-tg'), catatan: getVal('wg-k-ct'), ulangTahun: getVal('wg-k-ut') } };
   cfg.sholat = { aktif: getVal('sh-aktif'), menitSebelum: getVal('sh-menit'), saatAdzan: getVal('sh-adzan'), lat: getVal('sh-lat'), lon: getVal('sh-lon') };
   cfg.bukukelas = { ...(cfg.bukukelas || {}), url: getVal('bkUrl').trim(), anonKey: getVal('bkKey').trim() };
   cfg.pengingatKhusus = $$('#khususBody tr').map(tr => ({

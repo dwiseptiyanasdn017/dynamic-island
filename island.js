@@ -284,6 +284,18 @@ function cekPengingat(d) {
     if (Array.isArray(r.hari) && r.hari.length && !r.hari.includes(d.getDay())) return;
     fire(`k${i}`, toMin(r.jam), 'Pengingat', r.teks);
   });
+  // Tugas dari kartu widget: sekali sehari mulai 07.00 (atau saat laptop baru dinyalakan setelahnya)
+  const kTugas = `${day}|tugas`;
+  if (n >= 7 * 60 && !fired.has(kTugas) && Array.isArray(cfg.tugas)) {
+    fired.add(kTugas);
+    const hari = B.tglStr(d);
+    const jatuh = cfg.tugas.filter(t => !t.selesai && t.tenggat && t.tenggat <= hari);
+    if (jatuh.length) {
+      const lewat = jatuh.filter(t => t.tenggat < hari).length;
+      pushAlert(`Tugas ${lewat ? 'jatuh tempo' : 'hari ini'} (${jatuh.length})`,
+        jatuh.slice(0, 3).map(t => (t.tenggat < hari ? '⚠ ' : '• ') + t.teks).join('  ') + (jatuh.length > 3 ? `  +${jatuh.length - 3} lagi` : ''));
+    }
+  }
 }
 
 // ---------- Timer ----------
