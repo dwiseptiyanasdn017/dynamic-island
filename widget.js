@@ -1,5 +1,5 @@
 'use strict';
-/* Widget desktop — kartu Sholat & Cuaca, Jadwal, Kalender, Kelas hari ini, Tugas, Catatan, Ulang tahun.
+/* Widget desktop — kartu Jam, Sholat & Cuaca, Jadwal, Kalender, Kelas hari ini, Tugas, Catatan, Ulang tahun.
    Memakai perhitungan sholat (Bersama.waktuSholat, kriteria Kemenag) dan data cuaca Open-Meteo yang sama dengan pulau. */
 const $ = s => document.querySelector(s);
 const B = window.Bersama;
@@ -8,7 +8,7 @@ const { pad, fmtMin, esc } = B;
 let cfg = null;
 // Setiap jendela widget hanya menampilkan satu kartu: ?kartu=sholatCuaca | jadwal | kalender
 const KARTU_INI = new URLSearchParams(location.search).get('kartu') || 'sholatCuaca';
-const ID_KARTU = { sholatCuaca: 'k-sc', jadwal: 'k-jd', kalender: 'k-kal', kelasHariIni: 'k-kh', tugas: 'k-tg', catatan: 'k-ct', ulangTahun: 'k-ut' };
+const ID_KARTU = { jam: 'k-jam', sholatCuaca: 'k-sc', jadwal: 'k-jd', kalender: 'k-kal', kelasHariIni: 'k-kh', tugas: 'k-tg', catatan: 'k-ct', ulangTahun: 'k-ut' };
 let cuaca = null;
 let bkSt = null;   // status BukuKelas (untuk libur sekolah & warna mapel)
 
@@ -20,7 +20,7 @@ function applyTheme() {
   const v = B.varTema({ ...t, latarCss: tema.latarCss || '' });
   for (const [k, val] of Object.entries(v)) r.setProperty(k, val);
   const w = cfg.widget || {};
-  r.setProperty('--op', (Number(w.transparansi) || 90) / 100);
+  r.setProperty('--op', (Number(w.transparansi) || 60) / 100);
   const terang = B.terang(tema.warnaLatar || t.warnaLatar) > 0.4;
   r.setProperty('--hujan', terang ? '#0369a1' : '#7dd3fc');
   document.body.classList.toggle('kunci', !!w.kunci);
@@ -414,6 +414,21 @@ function renderUlangTahun(d) {
     + `<li class="kosong-kecil" style="display:block">${ada.length} dari ${(data.siswa || []).length} siswa punya tanggal lahir</li>`;
 }
 
+// ---------- Jam digital ----------
+function renderJam(d) {
+  if (!kartuAktif('jam')) { $('#k-jam').hidden = true; return; }
+  $('#k-jam').hidden = false;
+  $('#jm-hm').textContent = `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  $('#jm-dt').textContent = pad(d.getSeconds());
+  $('#jm-tgl').textContent = `${B.HARI[d.getDay()]}, ${d.getDate()} ${B.BULAN[d.getMonth()]} ${d.getFullYear()}`;
+  // satu baris keterangan: libur / pelajaran yang sedang berjalan
+  const info = B.infoHari(B.tglStr(d), bkData() ? bkData().presensi : null);
+  const n = d.getHours() * 60 + d.getMinutes();
+  const kini = info.sekolah ? B.jadwalHari(cfg, d).find(x => n >= x.s && n < x.e) : null;
+  $('#jm-info').textContent = !info.sekolah ? info.alasan : (kini ? `${kini.mapel} · sampai ${fmtMin(kini.e)}` : '');
+}
+if (KARTU_INI === 'jam') setInterval(() => { if (cfg) renderJam(new Date()); }, 1000);
+
 // ---------- Render ----------
 function render() {
   if (!cfg) return;
@@ -421,6 +436,7 @@ function render() {
   $('#sc-tgl').textContent = `${B.HARI[d.getDay()]}, ${d.getDate()} ${B.BULAN[d.getMonth()]}`;
   $('#sc-lok').textContent = '📍 ' + (((cfg.cuaca || {}).nama || '').trim() || 'Lokasi belum diatur');
   $('#sc-segar').hidden = (cfg.cuaca || {}).aktif === false;
+  renderJam(d);
   if (kartuAktif('sholatCuaca')) {
     renderCuaca(d);
     renderSholat(d, n);

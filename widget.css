@@ -13,7 +13,9 @@ body.kunci .pegangan { display: none; }
 #skala-lbl { position: absolute; right: 22px; bottom: 5px; font-size: 11px; font-weight: 600; padding: 1px 6px; border-radius: 6px; background: var(--aksen); color: var(--aksen-teks); opacity: 0; transition: opacity .15s; pointer-events: none; }
 body.ubah #skala-lbl { opacity: 1; }
 
-.kartu { position: relative; border-radius: 18px; padding: 14px 16px 12px; overflow: hidden; box-shadow: var(--cahaya); }
+.kartu { position: relative; border-radius: 18px; padding: 14px 16px 12px; overflow: hidden;
+  /* tepi kaca tipis + bayangan lembut agar kartu tembus pandang tetap terbaca dan menyatu dengan wallpaper */
+  border: 1px solid color-mix(in srgb, #fff 55%, transparent); box-shadow: 0 4px 16px rgba(0,0,0,.07); }
 /* latar di lapisan terpisah agar opasitas tidak ikut memudarkan tulisan */
 .kartu::before { content: ''; position: absolute; inset: 0; background: var(--latar, #000); opacity: var(--op, .9); z-index: -1; }
 .kartu > * { text-shadow: var(--bayang); }
@@ -148,3 +150,14 @@ li:hover .tg-hapus { opacity: .55; } .tg-hapus:hover { opacity: 1 !important; co
 /* tanpa garis fokus setelah diklik dengan mouse; tetap tampil saat memakai keyboard */
 button:focus:not(:focus-visible) { outline: none; }
 button.ikon:focus-visible, .tombol:focus-visible, .tautan:focus-visible { outline: 2px solid var(--aksen); outline-offset: 1px; }
+
+/* Jam digital */
+#k-jam { width: 440px; text-align: center; padding: 18px 20px 16px; }
+.jm-isi { cursor: move; }
+body.kunci .jm-isi { cursor: default; }
+#jm-waktu { font-variant-numeric: tabular-nums; line-height: 1; white-space: nowrap; }
+#jm-hm { font-size: 92px; font-weight: 200; letter-spacing: -3px; }
+#jm-dt { font-size: 28px; font-weight: 300; opacity: .55; margin-left: 6px; vertical-align: 52px; display: inline-block; width: 36px; text-align: left; }
+#jm-tgl { font-size: 18px; font-weight: 600; margin-top: 6px; }
+#jm-info { font-size: 13px; margin-top: 4px; }
+#jm-info:empty { display: none; }

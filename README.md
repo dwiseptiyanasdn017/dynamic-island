@@ -16,6 +16,10 @@ Pil hitam di atas tengah layar, mirip Dynamic Island iPhone. Arahkan kursor ke p
 - **Pengingat**: pil membesar, berdenyut, dan berbunyi beberapa menit sebelum pelajaran mulai, saat mulai, dan saat selesai. Ada juga pengingat khusus (rapat, piket, setor nilai)
 - **Pengaturan**: warna dan tema, lebar, posisi, cara membuka (hover atau klik), jadwal, pengingat, pintasan, dan autostart
 
+## Kartu Jam digital & kartu tembus pandang (versi 1.12)
+- **🕰️ Jam digital**: jam besar dengan detik, tanggal lengkap, dan satu baris keterangan (pelajaran yang sedang berjalan atau alasan libur). Bawaannya di **tengah layar**; bisa dipindah dan diubah ukurannya seperti kartu lain. *Rapikan kartu* juga mengembalikan jam ke tengah.
+- Semua kartu kini **tembus pandang 60%** dengan tepi kaca tipis agar menyatu dengan wallpaper. Atur di **Pengaturan → Widget Desktop → Ketebalan latar kartu** (40–100%).
+
 ## Kartu Kelas hari ini, Tugas, Catatan, Ulang tahun (versi 1.11)
 - **🧒 Kelas hari ini**: rekap presensi kelas (hadir, sakit, izin, alpa) beserta nama siswa yang tidak hadir, dan status **jurnal mengajar** tiap pelajaran hari ini (✓ terisi, tombol *Isi* untuk pelajaran yang sudah lewat). Tombol Presensi/Jurnal membuka Panel Kelas. Data dari BukuKelas, diperbarui tiap 2 menit.
 - **✅ Tugas**: tambah tugas (Enter) dengan tenggat opsional, centang bila selesai, hapus dengan ✕. Urut menurut tenggat; merah = lewat tenggat, oranye = hari ini. Tugas yang jatuh tempo diingatkan di pil sekali sehari mulai pukul 07.00.

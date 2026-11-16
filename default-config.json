@@ -294,8 +294,9 @@
   "widget": {
     "aktif": true,
     "kunci": false,
-    "transparansi": 90,
+    "transparansi": 60,
     "kartu": {
+      "jam": true,
       "sholatCuaca": true,
       "jadwal": true,
       "kalender": true,

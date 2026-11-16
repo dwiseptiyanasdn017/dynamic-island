@@ -49,6 +49,12 @@ function loadConfig() {
   }
   // Isi kalender pendidikan bawaan satu kali bila daftar di laptop masih kosong
   // (mis. tersimpan kosong saat versi sebelumnya terpasang tanpa data kaldik).
+  if (!config.widget || !config.widget.opV2) {
+    config.widget = config.widget || {};
+    if (!config.widget.transparansi || Number(config.widget.transparansi) >= 90) config.widget.transparansi = 60;
+    config.widget.opV2 = true;
+    saveConfigFile();
+  }
   if (!config.kaldikTerisi) {
     if (!Array.isArray(config.kaldik) || !config.kaldik.length) config.kaldik = structuredClone(DEFAULT.kaldik || []);
     config.kaldikTerisi = true;
@@ -269,7 +275,7 @@ function tampilDiBawah(win) { if (!win || win.isDestroyed()) return; win.showIna
 // Setiap kartu adalah jendela transparan tersendiri di belakang jendela lain: bisa diseret ke mana saja
 // lewat judulnya, dan diperbesar/diperkecil (70–160%) lewat pojok kanan bawah atau Ctrl+scroll.
 // Posisi dan skala tiap kartu disimpan di config.widget.kartuPos[id] = { x, y, skala }.
-const KARTU_WIDGET = ['sholatCuaca', 'jadwal', 'kalender', 'kelasHariIni', 'tugas', 'catatan', 'ulangTahun'];
+const KARTU_WIDGET = ['jam', 'sholatCuaca', 'jadwal', 'kalender', 'kelasHariIni', 'tugas', 'catatan', 'ulangTahun'];
 let perluRapikan = false;
 const wcfg = () => (config.widget = config.widget || {});
 const kartuPos = id => ((wcfg().kartuPos || {})[id]) || {};
@@ -326,15 +332,21 @@ function jagaDiLayar(win) {
   if (x !== b.x || y !== b.y) win.setPosition(x, y);
 }
 // Perkiraan tinggi penuh tiap kartu (px, skala 100%) agar ruang yang disediakan cukup walau datanya belum termuat.
-const TINGGI_PERKIRAAN = { sholatCuaca: 420, jadwal: 300, kalender: 440, kelasHariIni: 300, tugas: 280, catatan: 190, ulangTahun: 170 };
+const TINGGI_PERKIRAAN = { jam: 170, sholatCuaca: 420, jadwal: 300, kalender: 440, kelasHariIni: 300, tugas: 280, catatan: 190, ulangTahun: 170 };
 function tempatkanBaru() {
   for (const id of KARTU_WIDGET) {
     const win = widgets[id];
     if (!win || win.isDestroyed() || !win.perluTempat) continue;
-    const t = tempatKosong(win);
+    const t = id === 'jam' ? posisiTengah(win) : tempatKosong(win);
     win.perluTempat = false;
     win.setPosition(t.x, t.y); simpanKartuPos(id, t); tampilDiBawah(win);
   }
+}
+/** Kartu jam: di tengah layar, sedikit di atas garis tengah. */
+function posisiTengah(win) {
+  const wa = screen.getPrimaryDisplay().workArea;
+  const [w, h] = win.getSize();
+  return { x: Math.round(wa.x + (wa.width - w) / 2), y: Math.round(wa.y + (wa.height - h) / 2 - wa.height * 0.08) };
 }
 /** Cari posisi kosong untuk kartu baru: kolom dari kanan ke kiri, dari atas ke bawah, tidak menimpa kartu lain. */
 function tempatKosong(win) {
@@ -357,6 +369,7 @@ function rapikanKartu() {
   let kanan = wa.x + wa.width - 12, y = wa.y + 12, lebarKolom = 0;
   for (const id of KARTU_WIDGET) {
     const win = widgets[id]; if (!win || win.isDestroyed()) continue;
+    if (id === 'jam') { const t = posisiTengah(win); win.setPosition(t.x, t.y); simpanKartuPos(id, t); tampilDiBawah(win); continue; }
     const [w, h] = win.getSize();
     if (y > wa.y + 12 && y + h > wa.y + wa.height - 8) { kanan -= lebarKolom + 4; y = wa.y + 12; lebarKolom = 0; }
     win.setPosition(Math.round(kanan - w), Math.round(y));
