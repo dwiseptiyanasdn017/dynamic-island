@@ -36,6 +36,15 @@ jobs:
       - name: Pasang paket
         if: steps.cek.outputs.lewati != '1'
         run: npm ci
+      - name: Buat tag v${{ steps.cek.outputs.versi }}
+        if: steps.cek.outputs.lewati != '1'
+        shell: bash
+        run: |
+          TAG="v${{ steps.cek.outputs.versi }}"
+          if ! git ls-remote --exit-code --tags origin "refs/tags/$TAG" >/dev/null; then
+            git tag "$TAG"
+            git push origin "$TAG"
+          fi
       - name: Buat installer & terbitkan v${{ steps.cek.outputs.versi }}
         if: steps.cek.outputs.lewati != '1'
         run: npx electron-builder --win --publish always
