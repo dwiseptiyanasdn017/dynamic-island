@@ -344,7 +344,8 @@ function renderTugas(d) {
   const aktif = semua.filter(x => !x.selesai).sort((a, b) => (a.tenggat || '9999').localeCompare(b.tenggat || '9999') || a.waktu - b.waktu);
   const selesai = semua.filter(x => x.selesai).sort((a, b) => b.waktu - a.waktu);
   const lewat = aktif.filter(x => x.tenggat && x.tenggat < hariIni).length, hari = aktif.filter(x => x.tenggat === hariIni).length;
-  $('#tg-sub').textContent = aktif.length ? [`${aktif.length} belum selesai`, lewat ? `${lewat} lewat tenggat` : '', hari ? `${hari} hari ini` : ''].filter(Boolean).join(' · ') : 'Semua tugas selesai 🎉';
+  $('#tg-sub').textContent = aktif.length ? [`${aktif.length} belum selesai`, lewat ? `${lewat} lewat tenggat` : '', hari ? `${hari} hari ini` : ''].filter(Boolean).join(' · ')
+    : (selesai.length ? 'Semua tugas selesai 🎉' : '');
   const baris = x => {
     const [tt, kls] = tenggatTeks(x.tenggat, hariIni);
     return `<li data-id="${esc(x.id)}"><input type="checkbox" ${x.selesai ? 'checked' : ''}><span class="tg-teks">${esc(x.teks)}</span>

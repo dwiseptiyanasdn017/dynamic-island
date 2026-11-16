@@ -144,3 +144,7 @@ li:hover .tg-hapus { opacity: .55; } .tg-hapus:hover { opacity: 1 !important; co
 #ut-list li + li { border-top: 1px solid color-mix(in srgb, var(--teks) 8%, transparent); }
 #ut-list li.hari { font-weight: 700; color: var(--aksen); }
 #ut-list .ut-tgl { font-size: 11.5px; opacity: .75; white-space: nowrap; }
+
+/* tanpa garis fokus setelah diklik dengan mouse; tetap tampil saat memakai keyboard */
+button:focus:not(:focus-visible) { outline: none; }
+button.ikon:focus-visible, .tombol:focus-visible, .tautan:focus-visible { outline: 2px solid var(--aksen); outline-offset: 1px; }
