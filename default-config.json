@@ -297,7 +297,136 @@
     "transparansi": 90,
     "kartu": {
       "sholatCuaca": true,
-      "jadwal": true
+      "jadwal": true,
+      "kalender": true
     }
-  }
+  },
+  "kaldik": [
+    {
+      "mulai": "2026-07-01",
+      "sampai": "2026-07-11",
+      "nama": "Libur Semester Genap TA 2025/2026",
+      "jenis": "libur"
+    },
+    {
+      "mulai": "2026-07-13",
+      "sampai": "2026-07-13",
+      "nama": "Awal Semester Ganjil TA 2026/2027",
+      "jenis": "kegiatan"
+    },
+    {
+      "mulai": "2026-07-14",
+      "sampai": "2026-07-18",
+      "nama": "MPLS Ramah",
+      "jenis": "kegiatan"
+    },
+    {
+      "mulai": "2026-07-18",
+      "sampai": "2026-07-18",
+      "nama": "Penutupan MPLS Ramah dan Gotong Royong",
+      "jenis": "kegiatan"
+    },
+    {
+      "mulai": "2026-12-07",
+      "sampai": "2026-12-12",
+      "nama": "Asesmen Sumatif Akhir Semester Ganjil",
+      "jenis": "ujian"
+    },
+    {
+      "mulai": "2026-12-19",
+      "sampai": "2026-12-19",
+      "nama": "Pembagian Rapor Semester Ganjil",
+      "jenis": "rapor"
+    },
+    {
+      "mulai": "2026-12-21",
+      "sampai": "2027-01-04",
+      "nama": "Libur Semester Ganjil TA 2026/2027",
+      "jenis": "libur"
+    },
+    {
+      "mulai": "2027-01-06",
+      "sampai": "2027-01-06",
+      "nama": "Hari Pertama Semester Genap",
+      "jenis": "kegiatan"
+    },
+    {
+      "mulai": "2027-02-08",
+      "sampai": "2027-02-09",
+      "nama": "Libur Awal Ramadhan 1448 H",
+      "jenis": "libur"
+    },
+    {
+      "mulai": "2027-03-01",
+      "sampai": "2027-03-08",
+      "nama": "Libur Sebelum Hari Raya Idul Fitri 1448 H",
+      "jenis": "libur"
+    },
+    {
+      "mulai": "2027-03-09",
+      "sampai": "2027-03-09",
+      "nama": "Hari Suci Nyepi (menurut kaldik)",
+      "jenis": "libur"
+    },
+    {
+      "mulai": "2027-03-12",
+      "sampai": "2027-03-20",
+      "nama": "Libur Setelah Hari Raya Idul Fitri 1448 H",
+      "jenis": "libur"
+    },
+    {
+      "mulai": "2027-03-22",
+      "sampai": "2027-03-22",
+      "nama": "Sekolah setelah Hari Raya Idul Fitri",
+      "jenis": "kegiatan"
+    },
+    {
+      "mulai": "2027-04-19",
+      "sampai": "2027-04-29",
+      "nama": "Perkiraan TKA Kelas 6 SD",
+      "jenis": "ujian"
+    },
+    {
+      "mulai": "2027-05-02",
+      "sampai": "2027-05-02",
+      "nama": "Hari Pendidikan Nasional",
+      "jenis": "kegiatan"
+    },
+    {
+      "mulai": "2027-05-10",
+      "sampai": "2027-05-15",
+      "nama": "Asesmen Sumatif Akhir Kelas VI",
+      "jenis": "ujian"
+    },
+    {
+      "mulai": "2027-06-02",
+      "sampai": "2027-06-02",
+      "nama": "Pengumuman Kelulusan Kelas VI",
+      "jenis": "kegiatan"
+    },
+    {
+      "mulai": "2027-06-07",
+      "sampai": "2027-06-12",
+      "nama": "Penilaian Sumatif Akhir Semester Genap",
+      "jenis": "ujian"
+    },
+    {
+      "mulai": "2027-06-19",
+      "sampai": "2027-06-19",
+      "nama": "Pembagian Rapor Semester Genap",
+      "jenis": "rapor"
+    },
+    {
+      "mulai": "2027-06-21",
+      "sampai": "2027-07-10",
+      "nama": "Libur Semester Genap TA 2026/2027",
+      "jenis": "libur"
+    },
+    {
+      "mulai": "2027-07-12",
+      "sampai": "2027-07-12",
+      "nama": "Awal Tahun Ajaran 2027/2028",
+      "jenis": "kegiatan"
+    }
+  ]
 }

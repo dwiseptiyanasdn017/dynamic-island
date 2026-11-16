@@ -618,13 +618,15 @@ function renderKalender(d) {
     const ts = B.tglStr(t), info = B.infoHari(ts, presensi);
     const sekolahLibur = presensi && (presensi.libur || []).some(l => ts >= l.tgl && ts <= (l.sampai || l.tgl));
     const cls = [t.getMonth() !== bl ? 'luar' : '', !info.sekolah ? 'libur' : '', sekolahLibur ? 'sekolah' : '', ts === hariIni ? 'ini' : '', ts === kalPilih ? 'pilih' : ''].join(' ');
-    html += `<button class="${cls}" data-t="${ts}" title="${esc(info.alasan || '')}">${t.getDate()}</button>`;
+    const ag = B.kaldikTanggal(ts).filter(x => x.jenis !== 'libur')[0];
+    html += `<button class="${cls}${ag ? ' agenda' : ''}" data-t="${ts}" title="${esc([info.alasan, ...B.kaldikTanggal(ts).map(x => x.nama)].filter(Boolean).join(' · '))}"${ag ? ` style="--ag:${B.JENIS_KALDIK[ag.jenis][1]}"` : ''}>${t.getDate()}</button>`;
   }
   $('#kal-grid').innerHTML = html;
   // daftar libur bulan ini, atau keterangan tanggal yang dipilih
   if (kalPilih) {
     const info = B.infoHari(kalPilih, presensi);
-    $('#kal-info').textContent = `${B.tglPanjang(kalPilih)} · ${info.sekolah ? 'Hari sekolah' : 'Libur: ' + info.alasan}`;
+    const ag = B.kaldikTanggal(kalPilih).filter(x => x.jenis !== 'libur').map(x => x.nama);
+    $('#kal-info').textContent = `${B.tglPanjang(kalPilih)} · ${info.sekolah ? 'Hari sekolah' : 'Libur: ' + info.alasan}${ag.length ? ' · ' + ag.join(', ') : ''}`;
   } else {
     const libur = [];
     for (let t = new Date(th, bl, 1); t.getMonth() === bl; t.setDate(t.getDate() + 1)) {
@@ -716,7 +718,7 @@ window.api.onUpdateSiap(v => pushAlert(`Versi ${v} siap dipasang ✨`, 'Pembarua
   { label: 'Pasang sekarang', fn: () => window.api.pasangUpdate() }));
 
 // ---------- Mulai ----------
-function terapkan(c) { cfg = c; applyTheme(); renderKarakter(); renderPresets(); renderPintasan(); render(new Date()); }
+function terapkan(c) { cfg = c; B.setKaldik(c.kaldik); applyTheme(); renderKarakter(); renderPresets(); renderPintasan(); render(new Date()); }
 window.api.onConfig(terapkan);
 window.api.bk.status().then(s => { bkSt = s; });
 window.api.internet().then(i => { internet = i; });

@@ -30,14 +30,37 @@
       });
   }
 
-  /** Hari sekolah? Memakai libur nasional + (bila tersambung) libur sekolah dari BukuKelas. */
+  // ---------- Kalender pendidikan (diisi di Pengaturan → Kalender Pendidikan) ----------
+  // butir: { mulai: 'YYYY-MM-DD', sampai: 'YYYY-MM-DD', nama, jenis: 'libur'|'ujian'|'kegiatan'|'rapor' }
+  let KALDIK = [];
+  const JENIS_KALDIK = { libur: ['Libur', '#ef4444'], ujian: ['Asesmen / ujian', '#8b5cf6'], kegiatan: ['Kegiatan', '#10b981'], rapor: ['Rapor', '#f59e0b'] };
+  function setKaldik(list) {
+    KALDIK = (Array.isArray(list) ? list : []).filter(x => x && /^\d{4}-\d{2}-\d{2}$/.test(x.mulai) && x.nama)
+      .map(x => ({ ...x, sampai: x.sampai && x.sampai >= x.mulai ? x.sampai : x.mulai, jenis: JENIS_KALDIK[x.jenis] ? x.jenis : 'kegiatan' }))
+      .sort((a, b) => a.mulai.localeCompare(b.mulai));
+  }
+  /** Butir kalender pendidikan yang mencakup tanggal t. */
+  const kaldikTanggal = t => KALDIK.filter(x => t >= x.mulai && t <= x.sampai);
+  const getKaldik = () => KALDIK;
+  /** Libur nasional pada tanggal t. Selama tahun ajaran yang diatur kalender pendidikan,
+      cuti bersama tidak dihitung libur (sekolah tetap masuk kecuali kaldik menandai libur). */
+  function liburNasional(t) {
+    const n = LIBUR_NASIONAL[t];
+    if (!n) return null;
+    if (/^cuti bersama/i.test(n) && KALDIK.length && t >= KALDIK[0].mulai && t <= KALDIK.reduce((m, x) => x.sampai > m ? x.sampai : m, '')) return null;
+    return n;
+  }
+
+  /** Hari sekolah? Memakai libur sekolah dari BukuKelas, libur kalender pendidikan, dan libur nasional. */
   function infoHari(t, presensi) {
     const c = presensi || { libur: [], masuk: [] };
     const dow = keDate(t).getDay();
     const sendiri = (c.libur || []).find(l => t >= l.tgl && t <= (l.sampai || l.tgl));
+    const kaldikLibur = KALDIK.find(x => x.jenis === 'libur' && t >= x.mulai && t <= x.sampai);
     let alasan = null;
     if (sendiri) alasan = sendiri.ket || 'Libur sekolah';
-    else if (LIBUR_NASIONAL[t]) alasan = LIBUR_NASIONAL[t];
+    else if (kaldikLibur) alasan = kaldikLibur.nama;
+    else if (liburNasional(t)) alasan = liburNasional(t);
     else if (dow === 0) alasan = 'Hari Minggu';
     const dipaksa = !!alasan && (c.masuk || []).includes(t);
     return { sekolah: !alasan || dipaksa, alasan };
@@ -166,5 +189,5 @@
     return ['🌡️', 'Cuaca'];
   }
 
-  g.Bersama = { HARI, BULAN, LIBUR_NASIONAL, pad, toMin, fmtMin, tglStr, keDate, tglPanjang, esc, jadwalHari, infoHari, cocokMapel, waktuSholat, NAMA_SHOLAT, TEMA, PALET_MAPEL, varTema, terang, cuacaKode };
+  g.Bersama = { setKaldik, kaldikTanggal, getKaldik, liburNasional, JENIS_KALDIK, HARI, BULAN, LIBUR_NASIONAL, pad, toMin, fmtMin, tglStr, keDate, tglPanjang, esc, jadwalHari, infoHari, cocokMapel, waktuSholat, NAMA_SHOLAT, TEMA, PALET_MAPEL, varTema, terang, cuacaKode };
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -348,7 +348,7 @@ function terapkanArg(a) {
   if (a.tab === 'nilai' && a.mapel) { $('#nMapel').value = a.mapel; aturNilaiMateri(); }
 }
 window.api.onKelasBuka(terapkanArg);
-window.api.onConfig(c => { cfg = c; });
+window.api.onConfig(c => { cfg = c; B.setKaldik(c.kaldik); });
 bk.onStatus(s => {
   const lamaData = D() && D().diperbarui;
   st = s; tampilStatus();
@@ -361,6 +361,7 @@ bk.onStatus(s => {
 
 (async function mulai() {
   cfg = await window.api.getConfig();
+  B.setKaldik(cfg.kaldik);
   st = await bk.status();
   $('#absTgl').value = hariIni();
   $('#jTgl').value = hariIni();
