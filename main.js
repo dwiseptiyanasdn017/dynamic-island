@@ -243,6 +243,29 @@ function openKelas(arg = {}) {
 }
 
 // ---------- Widget desktop ----------
+// Lapisan desktop ala macOS: kartu selalu berada di BAWAH semua jendela aplikasi.
+// Windows tidak punya opsi "selalu di bawah" di Electron, jadi dipanggil langsung SetWindowPos(HWND_BOTTOM)
+// lewat koffi (FFI tanpa kompilasi). Bila koffi gagal dimuat, kartu tetap jalan seperti biasa.
+let user32 = null;
+if (process.platform === 'win32') {
+  try {
+    const koffi = require('koffi');
+    const lib = koffi.load('user32.dll');
+    user32 = { SetWindowPos: lib.func('bool __stdcall SetWindowPos(intptr_t hWnd, intptr_t hWndInsertAfter, int X, int Y, int cx, int cy, uint32_t uFlags)') };
+  } catch (e) { console.error('koffi/user32 tidak termuat:', e.message); }
+}
+const HWND_BOTTOM = 1, SWP_NOSIZE = 0x1, SWP_NOMOVE = 0x2, SWP_NOACTIVATE = 0x10, SWP_NOOWNERZORDER = 0x200;
+function keBawah(win) {
+  if (!user32 || !win || win.isDestroyed()) return;
+  try {
+    const h = win.getNativeWindowHandle();
+    const hwnd = h.length >= 8 ? h.readBigUInt64LE(0) : BigInt(h.readUInt32LE(0));
+    user32.SetWindowPos(hwnd, HWND_BOTTOM, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE | SWP_NOOWNERZORDER);
+  } catch (e) { console.error('SetWindowPos gagal:', e.message); }
+}
+/** Tampilkan kartu tanpa merebut fokus, lalu langsung turunkan ke lapisan paling bawah. */
+function tampilDiBawah(win) { if (!win || win.isDestroyed()) return; win.showInactive(); keBawah(win); }
+
 // Setiap kartu adalah jendela transparan tersendiri di belakang jendela lain: bisa diseret ke mana saja
 // lewat judulnya, dan diperbesar/diperkecil (70–160%) lewat pojok kanan bawah atau Ctrl+scroll.
 // Posisi dan skala tiap kartu disimpan di config.widget.kartuPos[id] = { x, y, skala }.
@@ -274,11 +297,16 @@ function createKartu(id) {
   win.ukuranSiap = false;
   widgets[id] = win;
   win.loadFile('widget.html', { query: { kartu: id } });
-  win.once('ready-to-show', () => { if (!win.isDestroyed()) win.showInactive(); });
+  win.once('ready-to-show', () => tampilDiBawah(win));
+  // diklik / diseret / berubah ukuran -> Windows menaikkannya ke atas; turunkan lagi ke lapisan desktop
+  win.on('focus', () => setTimeout(() => keBawah(win), 0));
+  win.on('blur', () => keBawah(win));
+  win.on('show', () => keBawah(win));
   win.on('moved', () => {
     if (win.isDestroyed()) return;
     const [x, y] = win.getPosition();
     simpanKartuPos(id, { x, y });
+    keBawah(win);
   });
   win.on('close', e => { if (!quitting) e.preventDefault(); });
   win.on('closed', () => { if (widgets[id] === win) delete widgets[id]; });
@@ -305,14 +333,14 @@ function rapikanKartu() {
     win.setPosition(Math.round(kanan - w), Math.round(y));
     simpanKartuPos(id, { x: Math.round(kanan - w), y: Math.round(y) });
     y += h - 6; lebarKolom = Math.max(lebarKolom, w);   // jendela punya tepi transparan 8 px
-    win.showInactive();
+    tampilDiBawah(win);
   }
   perluRapikan = false;
 }
 function tampilkanWidget() {
   wcfg().aktif = true; saveConfigFile();
   aturWidget();
-  Object.values(widgets).forEach(w => { jagaDiLayar(w); w.showInactive(); });
+  Object.values(widgets).forEach(w => { jagaDiLayar(w); tampilDiBawah(w); });
   broadcast('cfg:updated', config);
 }
 function sembunyikanWidget() {
@@ -327,7 +355,7 @@ ipcMain.on('widget:ukuran', (e, w, h) => {
   const [lw, lh] = win.getSize();
   if (lw !== lebar || lh !== tinggi) {
     // jendela berukuran tetap mengabaikan setSize di sebagian sistem, jadi buka kuncinya sebentar
-    win.setResizable(true); win.setSize(lebar, tinggi); win.setResizable(false);
+    win.setResizable(true); win.setSize(lebar, tinggi); win.setResizable(false); keBawah(win);
   }
   if (!win.ukuranSiap) {
     win.ukuranSiap = true;

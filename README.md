@@ -16,6 +16,10 @@ Pil hitam di atas tengah layar, mirip Dynamic Island iPhone. Arahkan kursor ke p
 - **Pengingat**: pil membesar, berdenyut, dan berbunyi beberapa menit sebelum pelajaran mulai, saat mulai, dan saat selesai. Ada juga pengingat khusus (rapat, piket, setor nilai)
 - **Pengaturan**: warna dan tema, lebar, posisi, cara membuka (hover atau klik), jadwal, pengingat, pintasan, dan autostart
 
+## Widget di lapisan desktop ala macOS (versi 1.10)
+- Kartu widget kini **selalu berada di bawah semua jendela aplikasi**, seperti widget di macOS: tidak pernah menutupi Word, Chrome, dan lainnya, dan tetap di bawah walau diklik atau diseret. Kartu terlihat saat area desktop kosong.
+- Memakai `koffi` (pustaka FFI tanpa kompilasi) untuk memanggil fungsi Windows `SetWindowPos(HWND_BOTTOM)`. Bila gagal dimuat, kartu tetap berfungsi seperti versi sebelumnya.
+
 ## Kartu widget bebas dipindah & diubah ukurannya (versi 1.9)
 - Setiap kartu (Sholat & Cuaca, Jadwal, Kalender) kini **jendela tersendiri**: seret judulnya untuk memindahkan ke mana saja, termasuk ke monitor lain.
 - **Ubah ukuran** 70–160%: seret pojok kanan bawah kartu (pegangan muncul saat kursor di atas kartu), atau `Ctrl` + scroll di atas kartu. Klik dua kali pojok kanan bawah untuk kembali ke 100%. Isi kartu membesar proporsional sehingga tetap rapi.

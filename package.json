@@ -1,7 +1,7 @@
 {
   "name": "dynamic-island-windows",
   "productName": "Dynamic Island",
-  "version": "1.9.2",
+  "version": "1.10.0",
   "description": "Dynamic Island yang bisa dikustomisasi untuk Windows: jam, baterai, jadwal mengajar, musik, pengingat, timer, pintasan, widget desktop.",
   "main": "main.js",
   "author": "Dwi Septiyana",
@@ -20,7 +20,8 @@
     "productName": "Dynamic Island",
     "asarUnpack": [
       "media.ps1",
-      "kontrol.ps1"
+      "kontrol.ps1",
+      "node_modules/koffi/**"
     ],
     "files": [
       "main.js",
@@ -41,7 +42,10 @@
       "widget.html",
       "widget.css",
       "widget.js",
-      "assets/**"
+      "assets/**",
+      "!node_modules/koffi/build/koffi/{darwin,freebsd,linux,musl,openbsd}_*/**",
+      "!node_modules/koffi/build/koffi/win32_{ia32,arm64}/**",
+      "!node_modules/koffi/{src,vendor,doc}/**"
     ],
     "win": {
       "target": [
@@ -66,7 +70,8 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.119.0",
-    "electron-updater": "^6.8.11"
+    "electron-updater": "^6.8.11",
+    "koffi": "^2.16.4"
   },
   "repository": {
     "type": "git",
