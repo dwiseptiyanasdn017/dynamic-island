@@ -47,6 +47,13 @@ function loadConfig() {
     config = structuredClone(DEFAULT);
     saveConfigFile();
   }
+  // Isi kalender pendidikan bawaan satu kali bila daftar di laptop masih kosong
+  // (mis. tersimpan kosong saat versi sebelumnya terpasang tanpa data kaldik).
+  if (!config.kaldikTerisi) {
+    if (!Array.isArray(config.kaldik) || !config.kaldik.length) config.kaldik = structuredClone(DEFAULT.kaldik || []);
+    config.kaldikTerisi = true;
+    saveConfigFile();
+  }
 }
 function saveConfigFile() {
   fs.mkdirSync(path.dirname(cfgPath()), { recursive: true });
