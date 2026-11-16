@@ -24,7 +24,7 @@ jobs:
         run: |
           VER=$(node -p "require('./package.json').version")
           echo "versi=$VER" >> $GITHUB_OUTPUT
-          if gh release view "v$VER" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+          if [ "$(gh release view "v$VER" --repo "$GITHUB_REPOSITORY" --json isDraft --jq .isDraft 2>/dev/null)" = "false" ]; then
             echo "Versi v$VER sudah ada di Releases, tidak dibuat ulang."
             echo "lewati=1" >> $GITHUB_OUTPUT
           fi
@@ -36,17 +36,23 @@ jobs:
       - name: Pasang paket
         if: steps.cek.outputs.lewati != '1'
         run: npm ci
-      - name: Buat tag v${{ steps.cek.outputs.versi }}
+      - name: Siapkan rilis draf v${{ steps.cek.outputs.versi }}
         if: steps.cek.outputs.lewati != '1'
         shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           TAG="v${{ steps.cek.outputs.versi }}"
-          if ! git ls-remote --exit-code --tags origin "refs/tags/$TAG" >/dev/null; then
-            git tag "$TAG"
-            git push origin "$TAG"
-          fi
+          gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1 || \
+            gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --draft --title "Dynamic Island $TAG" --notes "Pembaruan Dynamic Island $TAG."
       - name: Buat installer & terbitkan v${{ steps.cek.outputs.versi }}
         if: steps.cek.outputs.lewati != '1'
         run: npx electron-builder --win --publish always
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Terbitkan rilis
+        if: steps.cek.outputs.lewati != '1'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release edit "v${{ steps.cek.outputs.versi }}" --repo "$GITHUB_REPOSITORY" --draft=false --latest
