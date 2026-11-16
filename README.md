@@ -1,5 +1,10 @@
 # Dynamic Island untuk Windows
 
+## Pasang & pembaruan otomatis
+- **Unduh installer:** https://github.com/dwiseptiyanasdn017/dynamic-island/releases/latest → `Dynamic-Island-Setup-x.y.z.exe`
+- Setelah terpasang, aplikasi memeriksa versi baru setiap 6 jam, mengunduhnya di latar belakang, lalu menawarkan **"Pasang sekarang"** lewat pil. Pengaturan (jadwal, tema, login BukuKelas) tersimpan di `%APPDATA%\Dynamic Island` dan tidak berubah saat update.
+- **Cara menerbitkan versi baru:** naikkan `version` di `package.json` lalu push ke `main`. GitHub Actions (`.github/workflows/rilis.yml`) membuat installer Windows dan menerbitkannya ke Releases.
+
 Pil hitam di atas tengah layar, mirip Dynamic Island iPhone. Arahkan kursor ke pil untuk membesarkannya.
 
 ## Fitur
