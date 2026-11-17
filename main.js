@@ -618,23 +618,31 @@ ipcMain.handle('karakter:hapus', (e, id) => {
 });
 
 // ---------- Indikator internet ----------
+// Hemat & tidak mudah salah:
+// - saat tersambung cukup dicek tiap 60 detik, satu alamat dulu (alamat berikutnya hanya bila yang pertama gagal);
+// - dianggap terputus hanya bila 3 kali cek berturut-turut gagal (±2 menit), agar jaringan yang sekadar lambat tidak memicu peringatan;
+// - saat terputus dicek tiap 15 detik supaya cepat tahu bila sudah tersambung lagi.
+let gagalBeruntun = 0, tCekInternet = null;
+async function cobaAlamat(u, ms) {
+  const ctl = new AbortController();
+  const t = setTimeout(() => ctl.abort(), ms);
+  try { const r = await net.fetch(u, { signal: ctl.signal, cache: 'no-store' }); return r.status < 500; }
+  catch { return false; }
+  finally { clearTimeout(t); }
+}
 async function cekInternet() {
+  clearTimeout(tCekInternet);
   let ok = false;
   if (net.isOnline()) {
-    // Cukup satu alamat yang menjawab agar dianggap tersambung (jaringan sekolah kadang memblokir salah satunya).
     const alamat = ['https://www.gstatic.com/generate_204', 'https://1.1.1.1/cdn-cgi/trace'];
     if ((config.bukukelas || {}).url) alamat.push(config.bukukelas.url.replace(/\/$/, '') + '/auth/v1/health');
-    const ctl = new AbortController();
-    const t = setTimeout(() => ctl.abort(), 7000);
-    try {
-      await Promise.any(alamat.map(u => net.fetch(u, { signal: ctl.signal, cache: 'no-store' })
-        .then(r => { if (r.status >= 500) throw new Error('server'); return true; })));
-      ok = true;
-    } catch { ok = false; }
-    clearTimeout(t); ctl.abort();
+    for (const u of alamat) { if (await cobaAlamat(u, 12000)) { ok = true; break; } }
   }
-  if (ok !== internet.online) { internet = { online: ok, sejak: Date.now() }; if (ok) setTimeout(ambilCuaca, 2000); }
+  gagalBeruntun = ok ? 0 : gagalBeruntun + 1;
+  const online = ok || (internet.online && gagalBeruntun < 3);
+  if (online !== internet.online) { internet = { online, sejak: Date.now() }; if (online) setTimeout(ambilCuaca, 2000); }
   broadcast('sistem:internet', internet);
+  tCekInternet = setTimeout(cekInternet, !ok ? 15 * 1000 : 60 * 1000);
 }
 ipcMain.handle('sistem:internet', () => internet);
 
@@ -789,8 +797,7 @@ if (!app.requestSingleInstanceLock()) {
     await initBukuKelas();
     startMedia();
     startKontrol();
-    cekInternet();
-    setInterval(cekInternet, 15 * 1000);
+    cekInternet();   // menjadwalkan dirinya sendiri (60 dtk saat tersambung, 15 dtk saat bermasalah)
     setTimeout(ambilCuaca, 3000);
     siapkanPembaruan();
     setInterval(ambilCuaca, 30 * 60 * 1000);
