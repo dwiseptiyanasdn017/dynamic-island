@@ -253,22 +253,34 @@ function openKelas(arg = {}) {
 // Windows tidak punya opsi "selalu di bawah" di Electron, jadi dipanggil langsung SetWindowPos(HWND_BOTTOM)
 // lewat koffi (FFI tanpa kompilasi). Bila koffi gagal dimuat, kartu tetap jalan seperti biasa.
 let user32 = null;
+// Status untuk Pengaturan → Widget Desktop, agar kegagalan tidak diam-diam
+const lapisan = { platform: process.platform, koffi: 'belum dicoba', panggilanOk: 0, panggilanGagal: 0, galat: '' };
 if (process.platform === 'win32') {
   try {
     const koffi = require('koffi');
     const lib = koffi.load('user32.dll');
-    user32 = { SetWindowPos: lib.func('bool __stdcall SetWindowPos(intptr_t hWnd, intptr_t hWndInsertAfter, int X, int Y, int cx, int cy, uint32_t uFlags)') };
-  } catch (e) { console.error('koffi/user32 tidak termuat:', e.message); }
-}
-const HWND_BOTTOM = 1, SWP_NOSIZE = 0x1, SWP_NOMOVE = 0x2, SWP_NOACTIVATE = 0x10, SWP_NOOWNERZORDER = 0x200;
+    user32 = {
+      SetWindowPos: lib.func('bool __stdcall SetWindowPos(intptr_t hWnd, intptr_t hWndInsertAfter, int X, int Y, int cx, int cy, uint32_t uFlags)'),
+      GetLastError: koffi.load('kernel32.dll').func('uint32_t __stdcall GetLastError()')
+    };
+    lapisan.koffi = 'termuat (versi ' + koffi.version + ')';
+  } catch (e) { lapisan.koffi = 'GAGAL dimuat'; lapisan.galat = String(e && e.message || e); console.error('koffi/user32 tidak termuat:', e); }
+} else lapisan.koffi = 'tidak dipakai (bukan Windows)';
+const HWND_BOTTOM = 1, SWP_NOSIZE = 0x1, SWP_NOMOVE = 0x2, SWP_NOACTIVATE = 0x10, SWP_NOOWNERZORDER = 0x200, SWP_NOSENDCHANGING = 0x400;
 function keBawah(win) {
-  if (!user32 || !win || win.isDestroyed()) return;
+  if (!user32 || !win || win.isDestroyed()) return false;
   try {
     const h = win.getNativeWindowHandle();
     const hwnd = h.length >= 8 ? h.readBigUInt64LE(0) : BigInt(h.readUInt32LE(0));
-    user32.SetWindowPos(hwnd, HWND_BOTTOM, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE | SWP_NOOWNERZORDER);
-  } catch (e) { console.error('SetWindowPos gagal:', e.message); }
+    const ok = user32.SetWindowPos(hwnd, HWND_BOTTOM, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOSENDCHANGING);
+    if (ok) lapisan.panggilanOk++;
+    else { lapisan.panggilanGagal++; lapisan.galat = 'SetWindowPos gagal, kode ' + user32.GetLastError(); }
+    return !!ok;
+  } catch (e) { lapisan.panggilanGagal++; lapisan.galat = String(e && e.message || e); return false; }
 }
+// Jaga terus: bila ada yang menaikkan kartu (mis. Windows saat ukuran berubah), turunkan lagi dalam ±1 detik.
+setInterval(() => { for (const w of Object.values(widgets)) if (w.isVisible()) keBawah(w); }, 1000);
+ipcMain.handle('widget:lapisan', () => ({ ...lapisan, aktif: !!user32 }));
 /** Tampilkan kartu tanpa merebut fokus, lalu langsung turunkan ke lapisan paling bawah. */
 function tampilDiBawah(win) { if (!win || win.isDestroyed()) return; win.showInactive(); keBawah(win); }
 

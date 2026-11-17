@@ -439,6 +439,14 @@ function tampilSholat() {
 ['sh-lat', 'sh-lon'].forEach(id => $('#' + id).addEventListener('input', tampilSholat));
 $('#sh-bawaan').addEventListener('click', () => { setVal('sh-lat', SH_BAWAAN.lat); setVal('sh-lon', SH_BAWAAN.lon); tampilSholat(); });
 $('#wg-reset').addEventListener('click', () => window.api.widgetReset());
+async function tampilLapisan() {
+  try {
+    const st = await window.api.statusLapisan();
+    $('#wg-lapisan').innerHTML = `<b>Lapisan desktop (kartu selalu di bawah jendela lain):</b> ${st.aktif && !st.panggilanGagal ? '✅ aktif' : (st.aktif ? '⚠️ sebagian gagal' : '❌ tidak aktif')}
+      · koffi ${esc(st.koffi)} · berhasil ${st.panggilanOk}× · gagal ${st.panggilanGagal}×${st.galat ? ' · <code>' + esc(st.galat) + '</code>' : ''}`;
+  } catch (e) { $('#wg-lapisan').textContent = 'Status lapisan desktop tidak terbaca: ' + e.message; }
+}
+tampilLapisan(); setInterval(tampilLapisan, 3000);
 $('#wg-100').addEventListener('click', () => window.api.widgetSkala100());
 $('#wg-motivasi-bawaan').addEventListener('click', async () => { const d = await window.api.defaultConfig(); $('#wg-motivasi').value = (d.motivasi || []).join('\n'); });
 $('#cu-samakan').addEventListener('click', () => { setVal('cu-lat', getVal('sh-lat')); setVal('cu-lon', getVal('sh-lon')); });

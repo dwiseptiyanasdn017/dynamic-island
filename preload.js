@@ -30,6 +30,7 @@ contextBridge.exposeInMainWorld('api', {
   simpanCatatan: teks => ipcRenderer.send('catatan:simpan', teks),
   pilihMotivasi: idx => ipcRenderer.send('motivasi:pilih', idx),
   defaultConfig: () => ipcRenderer.invoke('cfg:bawaan'),
+  statusLapisan: () => ipcRenderer.invoke('widget:lapisan'),
   widgetReset: () => ipcRenderer.send('widget:reset'),
   versi: () => ipcRenderer.invoke('update:status'),
   onUpdate: cb => ipcRenderer.on('update:status', (e, s) => cb(s)),
