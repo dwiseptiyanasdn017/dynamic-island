@@ -161,3 +161,9 @@ body.kunci .jm-isi { cursor: default; }
 #jm-tgl { font-size: 18px; font-weight: 600; margin-top: 6px; }
 #jm-info { font-size: 13px; margin-top: 4px; }
 #jm-info:empty { display: none; }
+
+/* Motivasi */
+#k-mt { width: 340px; }
+#mt-teks { margin: 2px 0 6px; font-size: 15.5px; line-height: 1.5; font-style: italic; font-weight: 500; position: relative; padding-left: 14px; border-left: 3px solid var(--aksen); }
+#mt-no { text-align: right; font-size: 11px; }
+#mt-acak { font-size: 12px; }

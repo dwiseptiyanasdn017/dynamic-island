@@ -303,7 +303,8 @@
       "kelasHariIni": true,
       "tugas": true,
       "catatan": true,
-      "ulangTahun": true
+      "ulangTahun": true,
+      "motivasi": true
     }
   },
   "kaldik": [
@@ -435,5 +436,37 @@
     }
   ],
   "tugas": [],
-  "catatan": ""
+  "catatan": "",
+  "motivasi": [
+    "Setiap anak membawa cahayanya sendiri. Tugas kita membantu cahaya itu menemukan jalannya.",
+    "Kesabaran hari ini adalah benih kepercayaan diri murid esok hari.",
+    "Mengajar bukan soal menyelesaikan materi, tetapi memastikan tidak ada yang tertinggal.",
+    "Satu kalimat pujian yang tulus bisa diingat seorang anak seumur hidupnya.",
+    "Kelas yang hangat dimulai dari guru yang tersenyum lebih dulu.",
+    "Anak yang paling sulit sering kali adalah anak yang paling membutuhkan kita.",
+    "Hari ini cukup lakukan yang terbaik. Besok kita perbaiki bersama.",
+    "Guru yang terus belajar akan selalu punya sesuatu yang baru untuk dibagikan.",
+    "Jangan ukur keberhasilan hanya dari nilai; lihat juga keberanian murid untuk mencoba.",
+    "Kesalahan murid adalah pintu masuk untuk mengajar, bukan alasan untuk kecewa.",
+    "Lelah itu wajar. Istirahat sejenak, lalu kembali dengan hati yang penuh.",
+    "Murid mungkin lupa pelajaran hari ini, tetapi mereka akan ingat bagaimana kita memperlakukan mereka.",
+    "Pelan-pelan tidak apa-apa, asal setiap anak ikut melangkah.",
+    "Rencana yang baik membuat kelas tenang; hati yang baik membuat kelas bahagia.",
+    "Tidak ada usaha kecil dalam mendidik. Semua tercatat dalam tumbuhnya seorang anak.",
+    "Dengarkan pertanyaan murid dengan sungguh-sungguh, karena di sanalah rasa ingin tahu tumbuh.",
+    "Bumi yang kita jaga hari ini adalah kelas tempat murid kita belajar esok hari.",
+    "Disiplin yang lembut lebih membekas daripada teguran yang keras.",
+    "Setiap pagi adalah kesempatan baru untuk memulai dengan semangat yang baru.",
+    "Guru hebat bukan yang tidak pernah salah, tetapi yang mau terus memperbaiki diri.",
+    "Berikan contoh, bukan hanya perintah. Murid belajar dari apa yang mereka lihat.",
+    "Keberhasilan kecil murid layak dirayakan, sebab dari situlah keberanian besar dimulai.",
+    "Administrasi rapi membuat pikiran lapang untuk fokus pada murid.",
+    "Jadilah alasan seorang anak senang datang ke sekolah hari ini.",
+    "Ilmu yang diajarkan dengan ikhlas akan terus mengalir kebaikannya.",
+    "Tidak semua bunga mekar bersamaan. Setiap anak punya waktunya sendiri.",
+    "Bersyukur atas murid-murid hari ini; mereka guru kecil yang mengajari kita sabar.",
+    "Satu langkah kecil setiap hari lebih baik daripada rencana besar yang tertunda.",
+    "Senyum guru di depan kelas adalah pelajaran pertama tentang kebaikan.",
+    "Tutup hari dengan syukur: apa pun hasilnya, Ibu sudah hadir untuk murid-murid."
+  ]
 }

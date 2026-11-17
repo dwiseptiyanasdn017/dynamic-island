@@ -16,6 +16,10 @@ Pil hitam di atas tengah layar, mirip Dynamic Island iPhone. Arahkan kursor ke p
 - **Pengingat**: pil membesar, berdenyut, dan berbunyi beberapa menit sebelum pelajaran mulai, saat mulai, dan saat selesai. Ada juga pengingat khusus (rapat, piket, setor nilai)
 - **Pengaturan**: warna dan tema, lebar, posisi, cara membuka (hover atau klik), jadwal, pengingat, pintasan, dan autostart
 
+## Kartu Motivasi (versi 1.13)
+- **✨ Motivasi hari ini**: satu kalimat motivasi untuk guru yang berganti otomatis setiap hari. Tombol ‹ › untuk ganti manual, 🔀 untuk acak (pilihan manual berlaku sampai hari berganti).
+- Daftar kalimat bisa diubah di **Pengaturan → Widget Desktop → Daftar motivasi** (satu kalimat per baris), dan bisa dikembalikan ke daftar bawaan (30 kalimat).
+
 ## Kartu Jam digital & kartu tembus pandang (versi 1.12)
 - **🕰️ Jam digital**: jam besar dengan detik, tanggal lengkap, dan satu baris keterangan (pelajaran yang sedang berjalan atau alasan libur). Bawaannya di **tengah layar**; bisa dipindah dan diubah ukurannya seperti kartu lain. *Rapikan kartu* juga mengembalikan jam ke tengah.
 - Semua kartu kini **tembus pandang 60%** dengan tepi kaca tipis agar menyatu dengan wallpaper. Atur di **Pengaturan → Widget Desktop → Ketebalan latar kartu** (40–100%).

@@ -8,7 +8,7 @@ const { pad, fmtMin, esc } = B;
 let cfg = null;
 // Setiap jendela widget hanya menampilkan satu kartu: ?kartu=sholatCuaca | jadwal | kalender
 const KARTU_INI = new URLSearchParams(location.search).get('kartu') || 'sholatCuaca';
-const ID_KARTU = { jam: 'k-jam', sholatCuaca: 'k-sc', jadwal: 'k-jd', kalender: 'k-kal', kelasHariIni: 'k-kh', tugas: 'k-tg', catatan: 'k-ct', ulangTahun: 'k-ut' };
+const ID_KARTU = { jam: 'k-jam', sholatCuaca: 'k-sc', jadwal: 'k-jd', kalender: 'k-kal', kelasHariIni: 'k-kh', tugas: 'k-tg', catatan: 'k-ct', ulangTahun: 'k-ut', motivasi: 'k-mt' };
 let cuaca = null;
 let bkSt = null;   // status BukuKelas (untuk libur sekolah & warna mapel)
 
@@ -429,6 +429,38 @@ function renderJam(d) {
 }
 if (KARTU_INI === 'jam') setInterval(() => { if (cfg) renderJam(new Date()); }, 1000);
 
+// ---------- Motivasi ----------
+// Bawaan: berganti tiap hari (urut menurut tanggal). Tombol ‹ › 🔀 memilih manual sampai hari berganti.
+const daftarMotivasi = () => (Array.isArray(cfg.motivasi) ? cfg.motivasi : []).map(x => String(x).trim()).filter(Boolean);
+function idxHariIni(d, n) {
+  const awal = new Date(d.getFullYear(), 0, 1);
+  return Math.floor((d - awal) / 864e5) % n;
+}
+function idxMotivasi(d, n) {
+  const p = cfg.motivasiPilih, kunci = `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+  return p && p.tgl === kunci && Number.isFinite(p.idx) ? p.idx % n : idxHariIni(d, n);
+}
+function renderMotivasi(d) {
+  const box = $('#k-mt');
+  if (!kartuAktif('motivasi')) { box.hidden = true; return; }
+  box.hidden = false;
+  const list = daftarMotivasi();
+  if (!list.length) { $('#mt-teks').textContent = 'Belum ada motivasi. Tambahkan di Pengaturan → Widget Desktop.'; $('#mt-no').textContent = ''; return; }
+  const i = idxMotivasi(d, list.length);
+  $('#mt-teks').textContent = list[i];
+  $('#mt-no').textContent = `${i + 1} / ${list.length}`;
+}
+function gantiMotivasi(fn) {
+  const list = daftarMotivasi(); if (!list.length) return;
+  const d = new Date(), i = fn(idxMotivasi(d, list.length), list.length);
+  cfg.motivasiPilih = { tgl: `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`, idx: i };
+  window.api.pilihMotivasi(i);
+  render();
+}
+$('#mt-prev').addEventListener('click', () => gantiMotivasi((i, n) => (i - 1 + n) % n));
+$('#mt-next').addEventListener('click', () => gantiMotivasi((i, n) => (i + 1) % n));
+$('#mt-acak').addEventListener('click', () => gantiMotivasi((i, n) => n < 2 ? i : (i + 1 + Math.floor(Math.random() * (n - 1))) % n));
+
 // ---------- Render ----------
 function render() {
   if (!cfg) return;
@@ -452,6 +484,7 @@ function render() {
   renderTugas(d);
   renderCatatan();
   renderUlangTahun(d);
+  renderMotivasi(d);
 }
 
 // Ukuran jendela mengikuti isi kartu

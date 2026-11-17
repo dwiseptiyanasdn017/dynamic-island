@@ -275,7 +275,7 @@ function tampilDiBawah(win) { if (!win || win.isDestroyed()) return; win.showIna
 // Setiap kartu adalah jendela transparan tersendiri di belakang jendela lain: bisa diseret ke mana saja
 // lewat judulnya, dan diperbesar/diperkecil (70–160%) lewat pojok kanan bawah atau Ctrl+scroll.
 // Posisi dan skala tiap kartu disimpan di config.widget.kartuPos[id] = { x, y, skala }.
-const KARTU_WIDGET = ['jam', 'sholatCuaca', 'jadwal', 'kalender', 'kelasHariIni', 'tugas', 'catatan', 'ulangTahun'];
+const KARTU_WIDGET = ['jam', 'sholatCuaca', 'jadwal', 'kalender', 'kelasHariIni', 'tugas', 'catatan', 'ulangTahun', 'motivasi'];
 let perluRapikan = false;
 const wcfg = () => (config.widget = config.widget || {});
 const kartuPos = id => ((wcfg().kartuPos || {})[id]) || {};
@@ -332,7 +332,7 @@ function jagaDiLayar(win) {
   if (x !== b.x || y !== b.y) win.setPosition(x, y);
 }
 // Perkiraan tinggi penuh tiap kartu (px, skala 100%) agar ruang yang disediakan cukup walau datanya belum termuat.
-const TINGGI_PERKIRAAN = { jam: 170, sholatCuaca: 420, jadwal: 300, kalender: 440, kelasHariIni: 300, tugas: 280, catatan: 190, ulangTahun: 170 };
+const TINGGI_PERKIRAAN = { jam: 170, sholatCuaca: 420, jadwal: 300, kalender: 440, kelasHariIni: 300, tugas: 280, catatan: 190, ulangTahun: 170, motivasi: 150 };
 function tempatkanBaru() {
   for (const id of KARTU_WIDGET) {
     const win = widgets[id];
@@ -422,6 +422,13 @@ ipcMain.on('tugas:simpan', (e, list) => {
   config.tugas = list.filter(t => t && typeof t.teks === 'string' && t.teks.trim()).slice(0, 200)
     .map(t => ({ id: String(t.id || Date.now()), teks: t.teks.trim().slice(0, 300), tenggat: /^\d{4}-\d{2}-\d{2}$/.test(t.tenggat || '') ? t.tenggat : '', selesai: !!t.selesai, waktu: Number(t.waktu) || Date.now() }));
   saveConfigFile(); broadcast('cfg:updated', config);
+});
+// Motivasi yang sedang dipilih manual (berlaku sampai hari berganti)
+ipcMain.on('motivasi:pilih', (e, idx) => {
+  if (!angka(idx)) return;
+  const d = new Date();
+  config.motivasiPilih = { tgl: `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`, idx: Math.max(0, Math.floor(Number(idx))) };
+  saveConfigFile();
 });
 ipcMain.on('catatan:simpan', (e, teks) => {
   config.catatan = String(teks || '').slice(0, 5000);
@@ -723,12 +730,13 @@ async function ikonPintasan(target, segar = false) {
 ipcMain.handle('ikon:pintasan', (e, target, segar) => ikonPintasan(target, !!segar));
 
 // ---------- IPC ----------
+ipcMain.handle('cfg:bawaan', () => DEFAULT);
 ipcMain.handle('cfg:get', () => config);
 ipcMain.handle('cfg:default', () => structuredClone(DEFAULT));
 ipcMain.handle('cfg:save', (e, next) => {
   const posisi = config.tampilan.posisi; // posisi pil hanya diubah lewat seret / tombol kembalikan
   const posKartu = (config.widget || {}).kartuPos;
-  const tugasLama = config.tugas, catatanLama = config.catatan;   // hanya diubah lewat kartunya sendiri
+  const tugasLama = config.tugas, catatanLama = config.catatan, motivasiPilih = config.motivasiPilih;   // hanya diubah lewat kartunya sendiri
   if (next && next.tampilan) next.tampilan.karakterKustom = config.tampilan.karakterKustom || [];
   const lokasiLama = JSON.stringify(config.cuaca || {});
   config = merge(structuredClone(DEFAULT), next);
@@ -737,6 +745,7 @@ ipcMain.handle('cfg:save', (e, next) => {
   delete config.widget.posisi;                       // posisi lama (versi 1.6–1.8) tidak dipakai lagi
   if (posKartu) config.widget.kartuPos = posKartu; else delete config.widget.kartuPos;
   config.tugas = tugasLama || []; config.catatan = catatanLama || '';
+  if (motivasiPilih) config.motivasiPilih = motivasiPilih;
   if (JSON.stringify(config.cuaca || {}) !== lokasiLama) setTimeout(ambilCuaca, 500);
   saveConfigFile();
   applyConfig();

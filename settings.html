@@ -301,8 +301,15 @@
           <label class="chk"><input type="checkbox" id="wg-k-tg"> ✅ <b>Tugas</b>: daftar tugas dengan tenggat; tugas yang jatuh tempo diingatkan di pil mulai pukul 07.00</label>
           <label class="chk"><input type="checkbox" id="wg-k-ct"> 🗒️ <b>Catatan</b>: catatan singkat yang tersimpan otomatis</label>
           <label class="chk"><input type="checkbox" id="wg-k-ut"> 🎂 <b>Ulang tahun siswa</b>: siswa yang berulang tahun dalam 7 hari, dari tanggal lahir di biodata BukuKelas</label>
+          <label class="chk"><input type="checkbox" id="wg-k-mt"> ✨ <b>Motivasi</b>: satu kalimat motivasi yang berganti setiap hari; bisa diganti dengan tombol ‹ › atau diacak</label>
           <p class="hint" style="margin:6px 0 0">Isinya mengikuti halaman Jadwal Mengajar, Jadwal Sholat, dan Cuaca. Libur sekolah dan warna mapel diambil dari BukuKelas bila sudah masuk.</p>
           <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap"><button type="button" id="wg-reset">Rapikan kartu ke pojok kanan atas</button><button type="button" id="wg-100">Ukuran semua kartu 100%</button></div>
+        </div>
+        <div class="card">
+          <b>Daftar motivasi</b>
+          <p class="hint" style="margin:6px 0 8px">Satu kalimat per baris. Kartu Motivasi menampilkan satu kalimat setiap hari secara bergiliran.</p>
+          <textarea id="wg-motivasi" rows="10" style="width:100%;font:inherit;line-height:1.45"></textarea>
+          <button type="button" id="wg-motivasi-bawaan" style="margin-top:8px">Kembalikan daftar bawaan</button>
         </div>
       </div>
 

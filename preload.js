@@ -28,6 +28,8 @@ contextBridge.exposeInMainWorld('api', {
   widgetSkala100: () => ipcRenderer.send('widget:skala100'),
   simpanTugas: list => ipcRenderer.send('tugas:simpan', list),
   simpanCatatan: teks => ipcRenderer.send('catatan:simpan', teks),
+  pilihMotivasi: idx => ipcRenderer.send('motivasi:pilih', idx),
+  defaultConfig: () => ipcRenderer.invoke('cfg:bawaan'),
   widgetReset: () => ipcRenderer.send('widget:reset'),
   versi: () => ipcRenderer.invoke('update:status'),
   onUpdate: cb => ipcRenderer.on('update:status', (e, s) => cb(s)),

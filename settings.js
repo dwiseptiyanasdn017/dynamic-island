@@ -54,7 +54,7 @@ function isiForm() {
   setVal('sh-lat', sh.lat ?? SH_BAWAAN.lat); setVal('sh-lon', sh.lon ?? SH_BAWAAN.lon);
   tampilSholat();
   const wg = cfg.widget || {};
-  setVal('wg-aktif', wg.aktif !== false); setVal('wg-k-jam', (wg.kartu || {}).jam !== false); setVal('wg-k-sc', (wg.kartu || {}).sholatCuaca !== false); setVal('wg-k-jd', (wg.kartu || {}).jadwal !== false); setVal('wg-k-kal', (wg.kartu || {}).kalender !== false); setVal('wg-k-kh', (wg.kartu || {}).kelasHariIni !== false); setVal('wg-k-tg', (wg.kartu || {}).tugas !== false); setVal('wg-k-ct', (wg.kartu || {}).catatan !== false); setVal('wg-k-ut', (wg.kartu || {}).ulangTahun !== false); setVal('wg-kunci', !!wg.kunci); setVal('wg-op', wg.transparansi || 60);
+  setVal('wg-aktif', wg.aktif !== false); setVal('wg-k-jam', (wg.kartu || {}).jam !== false); setVal('wg-k-sc', (wg.kartu || {}).sholatCuaca !== false); setVal('wg-k-jd', (wg.kartu || {}).jadwal !== false); setVal('wg-k-kal', (wg.kartu || {}).kalender !== false); setVal('wg-k-kh', (wg.kartu || {}).kelasHariIni !== false); setVal('wg-k-tg', (wg.kartu || {}).tugas !== false); setVal('wg-k-ct', (wg.kartu || {}).catatan !== false); setVal('wg-k-ut', (wg.kartu || {}).ulangTahun !== false); setVal('wg-k-mt', (wg.kartu || {}).motivasi !== false); $('#wg-motivasi').value = (cfg.motivasi || []).join('\n'); setVal('wg-kunci', !!wg.kunci); setVal('wg-op', wg.transparansi || 60);
   setVal('bkUrl', (cfg.bukukelas || {}).url || '');
   setVal('bkKey', (cfg.bukukelas || {}).anonKey || '');
   labelRange();
@@ -377,7 +377,8 @@ function kumpulkan() {
   cfg.umum.autostart = getVal('autostart');
   cfg.umum.sembunyiPresentasi = getVal('sembunyiPresentasi');
   cfg.umum.updateOtomatis = getVal('updateOtomatis'); cfg.umum.fiturMedia = getVal('fiturMedia'); cfg.umum.fiturKontrol = getVal('fiturKontrol');
-  cfg.widget = { ...(cfg.widget || {}), aktif: getVal('wg-aktif'), kunci: getVal('wg-kunci'), transparansi: getVal('wg-op') || 60, kartu: { jam: getVal('wg-k-jam'), sholatCuaca: getVal('wg-k-sc'), jadwal: getVal('wg-k-jd'), kalender: getVal('wg-k-kal'), kelasHariIni: getVal('wg-k-kh'), tugas: getVal('wg-k-tg'), catatan: getVal('wg-k-ct'), ulangTahun: getVal('wg-k-ut') } };
+  cfg.widget = { ...(cfg.widget || {}), aktif: getVal('wg-aktif'), kunci: getVal('wg-kunci'), transparansi: getVal('wg-op') || 60, kartu: { jam: getVal('wg-k-jam'), sholatCuaca: getVal('wg-k-sc'), jadwal: getVal('wg-k-jd'), kalender: getVal('wg-k-kal'), kelasHariIni: getVal('wg-k-kh'), tugas: getVal('wg-k-tg'), catatan: getVal('wg-k-ct'), ulangTahun: getVal('wg-k-ut'), motivasi: getVal('wg-k-mt') } };
+  cfg.motivasi = $('#wg-motivasi').value.split('\n').map(x => x.trim()).filter(Boolean);
   cfg.sholat = { aktif: getVal('sh-aktif'), menitSebelum: getVal('sh-menit'), saatAdzan: getVal('sh-adzan'), lat: getVal('sh-lat'), lon: getVal('sh-lon') };
   cfg.bukukelas = { ...(cfg.bukukelas || {}), url: getVal('bkUrl').trim(), anonKey: getVal('bkKey').trim() };
   cfg.pengingatKhusus = $$('#khususBody tr').map(tr => ({
@@ -439,6 +440,7 @@ function tampilSholat() {
 $('#sh-bawaan').addEventListener('click', () => { setVal('sh-lat', SH_BAWAAN.lat); setVal('sh-lon', SH_BAWAAN.lon); tampilSholat(); });
 $('#wg-reset').addEventListener('click', () => window.api.widgetReset());
 $('#wg-100').addEventListener('click', () => window.api.widgetSkala100());
+$('#wg-motivasi-bawaan').addEventListener('click', async () => { const d = await window.api.defaultConfig(); $('#wg-motivasi').value = (d.motivasi || []).join('\n'); });
 $('#cu-samakan').addEventListener('click', () => { setVal('cu-lat', getVal('sh-lat')); setVal('cu-lon', getVal('sh-lon')); });
 $('#resetPosisi').addEventListener('click', () => { window.api.resetPosisi(); status('Pil dikembalikan ke tengah atas'); });
 
