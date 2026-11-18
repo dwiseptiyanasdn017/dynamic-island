@@ -468,5 +468,13 @@
     "Satu langkah kecil setiap hari lebih baik daripada rencana besar yang tertunda.",
     "Senyum guru di depan kelas adalah pelajaran pertama tentang kebaikan.",
     "Tutup hari dengan syukur: apa pun hasilnya, Ibu sudah hadir untuk murid-murid."
-  ]
+  ],
+  "pet": {
+    "aktif": true,
+    "karakter": "ikut",
+    "ukuran": 90,
+    "kecepatan": "normal",
+    "bicara": true,
+    "tidurMalam": true
+  }
 }

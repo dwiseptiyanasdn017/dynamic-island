@@ -53,6 +53,12 @@ function isiForm() {
   setVal('sh-aktif', sh.aktif !== false); setVal('sh-menit', sh.menitSebelum ?? 10); setVal('sh-adzan', sh.saatAdzan !== false);
   setVal('sh-lat', sh.lat ?? SH_BAWAAN.lat); setVal('sh-lon', sh.lon ?? SH_BAWAAN.lon);
   tampilSholat();
+  const pt = cfg.pet || {};
+  $('#pet-karakter').innerHTML = '<option value="ikut">Sama dengan karakter pil</option>'
+    + Object.entries(window.KARAKTER).map(([id, k]) => `<option value="${id}">${esc(k.nama)}</option>`).join('')
+    + ((cfg.tampilan || {}).karakterKustom || []).map(k => `<option value="${esc(k.id)}">${esc(k.nama || 'Gambar sendiri')}</option>`).join('');
+  setVal('pet-aktif', pt.aktif !== false); setVal('pet-karakter', pt.karakter || 'ikut'); setVal('pet-ukuran', pt.ukuran || 90);
+  setVal('pet-kecepatan', pt.kecepatan || 'normal'); setVal('pet-bicara', pt.bicara !== false); setVal('pet-tidur', pt.tidurMalam !== false);
   const wg = cfg.widget || {};
   setVal('wg-aktif', wg.aktif !== false); setVal('wg-k-jam', (wg.kartu || {}).jam !== false); setVal('wg-k-sc', (wg.kartu || {}).sholatCuaca !== false); setVal('wg-k-jd', (wg.kartu || {}).jadwal !== false); setVal('wg-k-kal', (wg.kartu || {}).kalender !== false); setVal('wg-k-kh', (wg.kartu || {}).kelasHariIni !== false); setVal('wg-k-tg', (wg.kartu || {}).tugas !== false); setVal('wg-k-ct', (wg.kartu || {}).catatan !== false); setVal('wg-k-ut', (wg.kartu || {}).ulangTahun !== false); setVal('wg-k-mt', (wg.kartu || {}).motivasi !== false); $('#wg-motivasi').value = (cfg.motivasi || []).join('\n'); setVal('wg-kunci', !!wg.kunci); setVal('wg-op', wg.transparansi || 60);
   setVal('bkUrl', (cfg.bukukelas || {}).url || '');
@@ -64,8 +70,9 @@ function labelRange() {
   $('#lebarVal').textContent = $('#lebarRingkas').value + ' px';
   $('#opVal').textContent = $('#transparansi').value + '%';
   $('#wgOpVal').textContent = $('#wg-op').value + '%';
+  $('#petUkVal').textContent = $('#pet-ukuran').value + ' px';
 }
-['lebarRingkas', 'transparansi', 'wg-op'].forEach(id => $('#' + id).addEventListener('input', labelRange));
+['lebarRingkas', 'transparansi', 'wg-op', 'pet-ukuran'].forEach(id => $('#' + id).addEventListener('input', labelRange));
 
 // ---------- Galeri tema ----------
 let temaId = 'hitam';
@@ -387,6 +394,7 @@ function kumpulkan() {
     hari: [...tr.querySelectorAll('.hari-chk input:checked')].map(c => Number(c.value))
   })).filter(r => r.jam && r.teks);
   cfg.kaldik = bacaKaldik();
+  cfg.pet = { ...(cfg.pet || {}), aktif: getVal('pet-aktif'), karakter: getVal('pet-karakter') || 'ikut', ukuran: Number(getVal('pet-ukuran')) || 90, kecepatan: getVal('pet-kecepatan') || 'normal', bicara: getVal('pet-bicara'), tidurMalam: getVal('pet-tidur') };
   cfg.pintasan = $$('#pintasanBody tr').map(tr => ({
     nama: tr.querySelector('[data-k=nama]').value.trim(),
     target: tr.querySelector('[data-k=target]').value.trim()

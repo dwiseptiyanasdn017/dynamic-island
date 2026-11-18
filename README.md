@@ -16,6 +16,13 @@ Pil hitam di atas tengah layar, mirip Dynamic Island iPhone. Arahkan kursor ke p
 - **Pengingat**: pil membesar, berdenyut, dan berbunyi beberapa menit sebelum pelajaran mulai, saat mulai, dan saat selesai. Ada juga pengingat khusus (rapat, piket, setor nilai)
 - **Pengaturan**: warna dan tema, lebar, posisi, cara membuka (hover atau klik), jadwal, pengingat, pintasan, dan autostart
 
+## Pet interaktif (versi 1.14)
+- Karakter pilihan (bawaannya sama dengan karakter pil) hidup di atas taskbar: berjalan, duduk, bernapas, menoleh ke arah kursor, dan tidur di malam hari (21.00–05.00) atau bila lama tidak disentuh.
+- **Klik** = senang dan menyapa (dengan hati-hati kecil), **klik dua kali** = berputar, **seret** = diangkat lalu dilempar (jatuh, memantul, mendarat). Klik saat tidur untuk membangunkan.
+- Pengingat lucu lewat gelembung bicara: pelajaran dimulai, istirahat, waktu sholat, payung ☂️ saat kemungkinan hujan ≥ 50%, tugas jatuh tempo, topi pesta 🥳 saat ada siswa berulang tahun, dan sapaan sesekali (minum air, peregangan).
+- Jendela tembus klik kecuali tepat di atas pet, sehingga tidak mengganggu aplikasi lain. Disembunyikan otomatis saat presentasi/layar penuh. `Ctrl+Alt+P` atau menu tray untuk menampilkan/menyembunyikan.
+- Atur di **Pengaturan → Pet**: aktif, karakter, ukuran, kecepatan berjalan, boleh berbicara, tidur malam.
+
 ## Kartu Motivasi (versi 1.13)
 - **✨ Motivasi hari ini**: satu kalimat motivasi untuk guru yang berganti otomatis setiap hari. Tombol ‹ › untuk ganti manual, 🔀 untuk acak (pilihan manual berlaku sampai hari berganti).
 - Daftar kalimat bisa diubah di **Pengaturan → Widget Desktop → Daftar motivasi** (satu kalimat per baris), dan bisa dikembalikan ke daftar bawaan (30 kalimat).

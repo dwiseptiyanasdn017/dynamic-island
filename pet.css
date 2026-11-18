@@ -1,0 +1,47 @@
+/* Pet interaktif: berjalan di atas taskbar. */
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: transparent; overflow: hidden; user-select: none; font: 13px "Segoe UI", system-ui, sans-serif; }
+
+#pet { position: absolute; left: 0; bottom: 0; width: var(--s, 90px); height: var(--s, 90px); cursor: grab; touch-action: none; will-change: transform; }
+#pet.pegang { cursor: grabbing; }
+#badan { position: absolute; inset: 0; transform-origin: 50% 100%; }
+#gambar { width: 100%; height: 100%; object-fit: contain; display: block; pointer-events: none;
+  filter: drop-shadow(0 2px 3px rgba(0,0,0,.18)); transform: scaleX(var(--arah, 1)); transition: transform .18s; }
+#bayangan { position: absolute; left: 18%; right: 18%; bottom: -3px; height: 7px; border-radius: 50%; background: rgba(0,0,0,.18); filter: blur(2px); transition: opacity .2s, transform .2s; }
+
+/* Gerak per keadaan (dipasang lewat kelas di #pet) */
+#pet.diam #badan    { animation: napas 2.6s ease-in-out infinite; }
+#pet.jalan #badan   { animation: langkah .42s ease-in-out infinite; }
+#pet.duduk #badan   { transform: scaleY(.9) scaleX(1.05); animation: napas 3.4s ease-in-out infinite; }
+#pet.tidur #badan   { transform: rotate(-8deg) scaleY(.86) scaleX(1.06); animation: napasTidur 4s ease-in-out infinite; }
+#pet.senang #badan  { animation: lompatKecil .38s ease-out 2; }
+#pet.putar #badan   { animation: putar .7s ease-in-out 1; }
+#pet.mendarat #badan { animation: gepeng .32s ease-out 1; }
+#pet.udara #bayangan, #pet.pegang #bayangan { opacity: .25; transform: scale(.6); }
+#pet.lihat #badan   { animation: napas 2.6s ease-in-out infinite; }
+
+@keyframes napas { 0%,100% { transform: scale(1,1); } 50% { transform: scale(1.03,.97); } }
+@keyframes napasTidur { 0%,100% { transform: rotate(-8deg) scale(1.06,.86); } 50% { transform: rotate(-8deg) scale(1.09,.82); } }
+@keyframes langkah { 0%,100% { transform: translateY(0) rotate(-3deg); } 50% { transform: translateY(-6%) rotate(3deg); } }
+@keyframes lompatKecil { 0% { transform: translateY(0) scale(1.08,.9); } 40% { transform: translateY(-38%) scale(.94,1.08); } 100% { transform: translateY(0) scale(1,1); } }
+@keyframes putar { 0% { transform: rotate(0) } 100% { transform: rotate(360deg) } }
+@keyframes gepeng { 0% { transform: scale(1.25,.72); } 60% { transform: scale(.94,1.08); } 100% { transform: scale(1,1); } }
+
+/* Gelembung bicara */
+#gelembung { position: absolute; bottom: calc(100% + 22px); left: 50%; transform: translateX(-50%); width: max-content; max-width: 230px;
+  padding: 7px 11px; border-radius: 14px; background: #fff; color: #2e1065; font-weight: 600; line-height: 1.35; text-align: center;
+  box-shadow: 0 4px 14px rgba(0,0,0,.16); animation: muncul .25s ease-out; pointer-events: none; }
+#gelembung::after { content: ''; position: absolute; left: 50%; bottom: -6px; width: 12px; height: 12px; background: #fff; transform: translateX(-50%) rotate(45deg); border-radius: 2px; }
+#gelembung.kiri { left: 0; transform: none; } #gelembung.kiri::after { left: 22px; }
+#gelembung.kanan { left: auto; right: 0; transform: none; } #gelembung.kanan::after { left: auto; right: 16px; transform: rotate(45deg); }
+@keyframes muncul { from { opacity: 0; translate: 0 6px; } to { opacity: 1; translate: 0 0; } }
+
+/* Aksesori di atas kepala: payung, topi pesta, Zzz */
+#aksesori { position: absolute; left: 50%; top: -6px; transform: translate(-50%, -100%); font-size: calc(var(--s, 90px) * .32); line-height: 1; pointer-events: none; }
+
+/* Partikel: hati, bintang, Zzz */
+#efek { position: absolute; inset: 0; pointer-events: none; }
+.partikel { position: absolute; font-size: 18px; animation: naik 1.3s ease-out forwards; }
+.partikel.zzz { font-size: 15px; font-weight: 800; color: #6d28d9; animation: naikZzz 2.4s ease-out forwards; }
+@keyframes naik { 0% { opacity: 0; transform: translate(0,0) scale(.6); } 15% { opacity: 1; } 100% { opacity: 0; transform: translate(var(--dx, 0), -70px) scale(1.15); } }
+@keyframes naikZzz { 0% { opacity: 0; transform: translate(0,0) scale(.7); } 20% { opacity: .9; } 100% { opacity: 0; transform: translate(26px, -48px) scale(1.2); } }

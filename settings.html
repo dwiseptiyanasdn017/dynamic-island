@@ -87,6 +87,7 @@
     <a data-p="sholat">Jadwal Sholat</a>
     <a data-p="cuaca">Cuaca</a>
     <a data-p="widget">Widget Desktop</a>
+    <a data-p="pet">Pet</a>
     <a data-p="kaldik">Kalender Pendidikan</a>
     <a data-p="pintasan">Pintasan</a>
     <a data-p="timer">Timer</a>
@@ -311,6 +312,20 @@
           <p class="hint" style="margin:6px 0 8px">Satu kalimat per baris. Kartu Motivasi menampilkan satu kalimat setiap hari secara bergiliran.</p>
           <textarea id="wg-motivasi" rows="10" style="width:100%;font:inherit;line-height:1.45"></textarea>
           <button type="button" id="wg-motivasi-bawaan" style="margin-top:8px">Kembalikan daftar bawaan</button>
+        </div>
+      </div>
+
+      <!-- PET -->
+      <div class="pane" id="p-pet">
+        <h2>Pet Interaktif</h2>
+        <p class="hint">Teman kecil yang berjalan di atas taskbar. <b>Klik</b> untuk menyapa, <b>klik dua kali</b> agar berputar, <b>seret</b> untuk mengangkat lalu lepaskan untuk melempar. Pet tidur di malam hari atau bila lama tidak disentuh (klik untuk membangunkan), menoleh ke arah kursor, dan sesekali mengingatkan: pelajaran mulai, waktu sholat, mau hujan, tugas jatuh tempo, ulang tahun siswa. Disembunyikan otomatis saat presentasi/layar penuh. <code>Ctrl+Alt+P</code> menampilkan/menyembunyikan.</p>
+        <div class="card grid">
+          <span>Tampilkan pet</span><label class="chk"><input type="checkbox" id="pet-aktif"> Aktif</label>
+          <span>Karakter</span><select id="pet-karakter"></select>
+          <span>Ukuran</span><span><input type="range" id="pet-ukuran" min="50" max="150" step="5"> <b id="petUkVal"></b></span>
+          <span>Kecepatan berjalan</span><select id="pet-kecepatan"><option value="pelan">Pelan</option><option value="normal">Normal</option><option value="cepat">Cepat</option></select>
+          <span>Boleh berbicara (gelembung)</span><label class="chk"><input type="checkbox" id="pet-bicara"> Ya</label>
+          <span>Tidur pukul 21.00–05.00</span><label class="chk"><input type="checkbox" id="pet-tidur"> Ya</label>
         </div>
       </div>
 

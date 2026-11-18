@@ -17,6 +17,7 @@ let island = null;
 let settingsWin = null;
 let kelasWin = null;
 const widgets = {};   // id kartu -> jendela widget
+let petWin = null;
 let bk = null;
 let tray = null;
 let mediaProc = null;
@@ -81,6 +82,7 @@ function applyConfig() {
   if (u.fiturMedia === false && mediaProc) mediaProc.kill(); else if (u.fiturMedia !== false && !mediaProc && island) startMedia();
   if (u.fiturKontrol === false && kontrolProc) kontrolProc.kill(); else if (u.fiturKontrol !== false && !kontrolProc && island) startKontrol();
   aturWidget();
+  aturPet();
   broadcast('cfg:updated', config);
 }
 function broadcast(ch, data) {
@@ -196,9 +198,11 @@ function aturLayarPenuh(status) {
   const aktif = (config.umum || {}).sembunyiPresentasi !== false;
   if (penuh && aktif && !sembunyiPresentasi && island.isVisible()) {
     sembunyiPresentasi = true; island.hide();
+    if (petWin) petWin.hide();
   } else if ((!penuh || !aktif) && sembunyiPresentasi) {
     sembunyiPresentasi = false;
     if (!sembunyiManual) island.showInactive();
+    if (petWin && !petSembunyiManual) petWin.showInactive();
   }
 }
 
@@ -450,6 +454,47 @@ ipcMain.on('catatan:simpan', (e, teks) => {
 ipcMain.on('widget:skala100', () => {
   for (const id of KARTU_WIDGET) simpanKartuPos(id, { skala: 1 });
   broadcast('cfg:updated', config);
+});
+
+// ---------- Pet interaktif ----------
+// Jendela transparan selebar layar, tepat di atas taskbar. Tembus klik, kecuali saat kursor di atas pet.
+const PET_TINGGI = 260;
+function posisiPet() {
+  const wa = screen.getPrimaryDisplay().workArea;
+  return { x: wa.x, y: wa.y + wa.height - PET_TINGGI, width: wa.width, height: PET_TINGGI };
+}
+function createPet() {
+  if (petWin || quitting) return;
+  petWin = new BrowserWindow({
+    ...posisiPet(),
+    frame: false, transparent: true, backgroundColor: '#00000000', resizable: false, movable: false,
+    minimizable: false, maximizable: false, fullscreenable: false, skipTaskbar: true, hasShadow: false,
+    focusable: false, alwaysOnTop: true, show: false, title: 'Pet Dynamic Island',
+    webPreferences: { preload: path.join(__dirname, 'preload.js'), contextIsolation: true, nodeIntegration: false, backgroundThrottling: false }
+  });
+  petWin.setAlwaysOnTop(true, 'floating');
+  petWin.setIgnoreMouseEvents(true, { forward: true });
+  petWin.loadFile('pet.html');
+  petWin.once('ready-to-show', () => { if (petWin && !sembunyiPresentasi && !petSembunyiManual) petWin.showInactive(); });
+  petWin.on('close', e => { if (!quitting) e.preventDefault(); });
+  petWin.on('closed', () => { petWin = null; });
+}
+let petSembunyiManual = false;
+const petAktif = () => (config.pet || {}).aktif !== false;
+function aturPet() {
+  if (petAktif() && !petWin) createPet();
+  else if (!petAktif() && petWin) { const w = petWin; petWin = null; w.destroy(); }
+}
+function tempatkanPet() { if (petWin && !petWin.isDestroyed()) petWin.setBounds(posisiPet()); }
+function togglePet() {
+  if (!petAktif()) { config.pet = { ...(config.pet || {}), aktif: true }; saveConfigFile(); petSembunyiManual = false; aturPet(); broadcast('cfg:updated', config); return; }
+  if (!petWin) return;
+  if (petWin.isVisible()) { petSembunyiManual = true; petWin.hide(); }
+  else { petSembunyiManual = false; tempatkanPet(); petWin.showInactive(); }
+}
+ipcMain.on('pet:tangkap', (e, v) => {
+  if (!petWin || petWin.isDestroyed() || BrowserWindow.fromWebContents(e.sender) !== petWin) return;
+  petWin.setIgnoreMouseEvents(!v, { forward: true });
 });
 
 // ---------- BukuKelas ----------
@@ -807,6 +852,7 @@ if (!app.requestSingleInstanceLock()) {
     tray.setContextMenu(Menu.buildFromTemplate([
       { label: 'Tampilkan / Sembunyikan  (Ctrl+Alt+D)', click: toggleIsland },
       { label: 'Kembalikan pil ke tengah atas', click: resetPosisi },
+      { label: 'Pet: tampilkan / sembunyikan  (Ctrl+Alt+P)', click: togglePet },
       { label: 'Widget desktop: tampilkan  (Ctrl+Alt+W)', click: tampilkanWidget },
       { label: 'Widget desktop: rapikan kartu', click: () => { tampilkanWidget(); rapikanKartu(); } },
       { label: 'Widget desktop: sembunyikan', click: sembunyikanWidget },
@@ -820,9 +866,10 @@ if (!app.requestSingleInstanceLock()) {
     globalShortcut.register('Control+Alt+D', toggleIsland);
     globalShortcut.register('Control+Alt+S', openSettings);
     globalShortcut.register('Control+Alt+K', () => openKelas());
+    globalShortcut.register('Control+Alt+P', () => togglePet());
     globalShortcut.register('Control+Alt+W', () => (Object.values(widgets).some(w => w.isVisible()) ? sembunyikanWidget() : tampilkanWidget()));
 
-    screen.on('display-metrics-changed', () => { placeIsland(); Object.values(widgets).forEach(jagaDiLayar); });
+    screen.on('display-metrics-changed', () => { placeIsland(); Object.values(widgets).forEach(jagaDiLayar); tempatkanPet(); });
     screen.on('display-removed', () => Object.values(widgets).forEach(jagaDiLayar));
     screen.on('display-added', placeIsland);
     screen.on('display-removed', placeIsland);
