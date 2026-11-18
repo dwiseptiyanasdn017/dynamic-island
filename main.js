@@ -56,6 +56,14 @@ function loadConfig() {
     config.widget.opV2 = true;
     saveConfigFile();
   }
+  if (config.tampilan && (config.tampilan.karakter !== 'kucing' || config.tampilan.karakterKustom)) {
+    if (config.tampilan.karakter !== 'none') config.tampilan.karakter = 'kucing';
+    delete config.tampilan.karakterKustom;
+    if (config.pet) delete config.pet.karakter;
+    saveConfigFile();
+  }
+  // v1.15: ukuran pet kini = tinggi kucing duduk (px); ukuran lama (64-ish) dinaikkan ke 120 sekali saja.
+  if (config.pet && !config.pet.ukuranV2) { config.pet.ukuran = 120; config.pet.ukuranV2 = true; saveConfigFile(); }
   if (!config.kaldikTerisi) {
     if (!Array.isArray(config.kaldik) || !config.kaldik.length) config.kaldik = structuredClone(DEFAULT.kaldik || []);
     config.kaldikTerisi = true;
@@ -458,7 +466,7 @@ ipcMain.on('widget:skala100', () => {
 
 // ---------- Pet interaktif ----------
 // Jendela transparan selebar layar, tepat di atas taskbar. Tembus klik, kecuali saat kursor di atas pet.
-const PET_TINGGI = 260;
+const PET_TINGGI = 460;
 function posisiPet() {
   const wa = screen.getPrimaryDisplay().workArea;
   return { x: wa.x, y: wa.y + wa.height - PET_TINGGI, width: wa.width, height: PET_TINGGI };
@@ -628,39 +636,6 @@ ipcMain.handle('cuaca', () => cuaca);
 ipcMain.on('cuaca:segarkan', () => ambilCuaca());
 
 // ---------- Karakter unggahan ----------
-const dirKarakter = () => path.join(app.getPath('userData'), 'karakter');
-ipcMain.handle('karakter:simpan', (e, dataUrl, nama) => {
-  const m = String(dataUrl).match(/^data:image\/(png|jpe?g|gif|webp|svg\+xml);base64,(.+)$/);
-  if (!m) throw new Error('Format gambar harus PNG, JPG, GIF, WEBP, atau SVG.');
-  const buf = Buffer.from(m[2], 'base64');
-  if (buf.length > 3 * 1024 * 1024) throw new Error('Ukuran gambar maksimal 3 MB.');
-  const ext = m[1].replace('jpeg', 'jpg').replace('svg+xml', 'svg');
-  const id = 'u' + Date.now().toString(36);
-  fs.mkdirSync(dirKarakter(), { recursive: true });
-  fs.writeFileSync(path.join(dirKarakter(), id + '.' + ext), buf);
-  const item = { id: 'u:' + id + '.' + ext, nama: String(nama || 'Karakter saya').slice(0, 40) };
-  config.tampilan.karakterKustom = [...(config.tampilan.karakterKustom || []), item];
-  config.tampilan.karakter = item.id;
-  saveConfigFile(); applyConfig();
-  return item;
-});
-ipcMain.handle('karakter:data', (e, id) => {
-  const f = String(id || '').replace(/^u:/, '');
-  if (!/^u[a-z0-9]+\.(png|jpg|gif|webp|svg)$/.test(f)) return null;
-  try {
-    const ext = f.split('.').pop();
-    const mime = { png: 'image/png', jpg: 'image/jpeg', gif: 'image/gif', webp: 'image/webp', svg: 'image/svg+xml' }[ext];
-    return `data:${mime};base64,` + fs.readFileSync(path.join(dirKarakter(), f)).toString('base64');
-  } catch { return null; }
-});
-ipcMain.handle('karakter:hapus', (e, id) => {
-  const f = String(id || '').replace(/^u:/, '');
-  if (/^u[a-z0-9]+\.(png|jpg|gif|webp|svg)$/.test(f)) { try { fs.unlinkSync(path.join(dirKarakter(), f)); } catch { /* sudah tidak ada */ } }
-  config.tampilan.karakterKustom = (config.tampilan.karakterKustom || []).filter(k => k.id !== id);
-  if (config.tampilan.karakter === id) config.tampilan.karakter = 'hantu';
-  saveConfigFile(); applyConfig();
-  return config;
-});
 
 // ---------- Indikator internet ----------
 // Hemat & tidak mudah salah:
@@ -802,7 +777,6 @@ ipcMain.handle('cfg:save', (e, next) => {
   const posisi = config.tampilan.posisi; // posisi pil hanya diubah lewat seret / tombol kembalikan
   const posKartu = (config.widget || {}).kartuPos;
   const tugasLama = config.tugas, catatanLama = config.catatan, motivasiPilih = config.motivasiPilih;   // hanya diubah lewat kartunya sendiri
-  if (next && next.tampilan) next.tampilan.karakterKustom = config.tampilan.karakterKustom || [];
   const lokasiLama = JSON.stringify(config.cuaca || {});
   config = merge(structuredClone(DEFAULT), next);
   if (posisi) config.tampilan.posisi = posisi; else delete config.tampilan.posisi;

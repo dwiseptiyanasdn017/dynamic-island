@@ -70,25 +70,29 @@ function aksenMapel(kini) {
   return B.PALET_MAPEL[h % B.PALET_MAPEL.length];
 }
 
-// ---------- Karakter ----------
-const dataKarakter = {};
-async function renderKarakter() {
+// ---------- Karakter (kucing) ----------
+// Gambar kucing di pil berkedip sendiri setiap 3–7 detik (kadang dua kali).
+function renderKarakter() {
   const t = cfg.tampilan, id = window.karakterId(t.karakter);
   const ada = id !== 'none' && t.karakterTampil !== false;
   document.body.classList.toggle('ada-av', ada);
   document.body.classList.toggle('av-gerak', t.karakterGerak !== false);
   if (!ada) return;
-  let html;
-  if (id.startsWith('u:')) {
-    if (!(id in dataKarakter)) dataKarakter[id] = await window.api.karakterData(id);
-    html = dataKarakter[id] ? `<img src="${dataKarakter[id]}" alt="" draggable="false">` : window.KARAKTER[window.KARAKTER_BAWAAN].html;
-  } else {
-    html = window.KARAKTER[id].html;
-  }
-  $('#c-av').innerHTML = html;
-  $('#a-av').innerHTML = html;
+  const html = window.KARAKTER.kucing.html;
+  if (!$('#c-av img')) $('#c-av').innerHTML = html;
+  if (!$('#a-av img')) $('#a-av').innerHTML = html;
   $('#a-av').classList.add('senang');
 }
+let tKedipPil = null;
+function kedipPil() {
+  clearTimeout(tKedipPil);
+  const urut = ['kedip_2', 'kedip_3', 'kedip_2', 'kedip_1'], ganda = Math.random() < .25;
+  const seq = ganda ? [...urut, ...urut] : urut;
+  seq.forEach((n, i) => setTimeout(() => document.querySelectorAll('#c-av img, #a-av img').forEach(im => { im.src = window.srcKucing(n); }), i * 70));
+  tKedipPil = setTimeout(kedipPil, 3000 + Math.random() * 4000);
+}
+['kedip_2', 'kedip_3'].forEach(n => { const im = new Image(); im.src = window.srcKucing(n); });   // muat lebih dulu
+setTimeout(kedipPil, 3000);
 
 // ---------- Isi & lebar pil kecil ----------
 function pilKecil() {

@@ -16,6 +16,13 @@ Pil hitam di atas tengah layar, mirip Dynamic Island iPhone. Arahkan kursor ke p
 - **Pengingat**: pil membesar, berdenyut, dan berbunyi beberapa menit sebelum pelajaran mulai, saat mulai, dan saat selesai. Ada juga pengingat khusus (rapat, piket, setor nilai)
 - **Pengaturan**: warna dan tema, lebar, posisi, cara membuka (hover atau klik), jadwal, pengingat, pintasan, dan autostart
 
+## Pet kucing beranimasi (versi 1.15)
+- Pet dan gambar di pil kini hanya **kucing abu-abu** (gambar karakter lain dan fitur unggah gambar dihapus).
+- Kucing digambar dari sprite (`assets/kucing`): duduk bernapas, berkedip (kadang dua kali), menoleh ke kursor, berjalan, kadang menghampiri kursor, mengantuk lalu tidur (malam hari atau lama tak disentuh).
+- Interaksi: **klik** = senang melompat, **klik dua kali** = berputar lalu pusing, **seret** = tergantung kaget, **lempar** = jatuh & memantul, **gosok kursor bolak-balik di kepalanya** = dielus (purr, hati).
+- Pengingat tetap sama: pelajaran, istirahat, sholat, hujan (payung), tugas, ulang tahun siswa (topi pesta), sapaan.
+- Kucing di pil ikut berkedip. Ukuran pet di Pengaturan → Pet kini = tinggi kucing (70–220 px, bawaan 120).
+
 ## Pet interaktif (versi 1.14)
 - Karakter pilihan (bawaannya sama dengan karakter pil) hidup di atas taskbar: berjalan, duduk, bernapas, menoleh ke arah kursor, dan tidur di malam hari (21.00–05.00) atau bila lama tidak disentuh.
 - **Klik** = senang dan menyapa (dengan hati-hati kecil), **klik dua kali** = berputar, **seret** = diangkat lalu dilempar (jatuh, memantul, mendarat). Klik saat tidur untuk membangunkan.

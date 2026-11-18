@@ -35,9 +35,8 @@ function isiForm() {
   temaId = tp.tema || 'kustom';
   setVal('pakaiGradien', !!tp.warnaLatar2); setVal('warnaLatar2', tp.warnaLatar2 || tp.warnaLatar); setVal('sudut', tp.sudut || 135);
   setVal('cahaya', !!tp.cahaya); setVal('aksenMapel', tp.aksenMapel !== false);
-  karId = window.karakterId(tp.karakter);
   setVal('karakterTampil', tp.karakterTampil !== false); setVal('karakterGerak', tp.karakterGerak !== false);
-  renderGaleriTema(); renderGaleriKar(); isiPilKecil(); isiBeranda();
+  renderGaleriTema(); isiPilKecil(); isiBeranda();
   const mi = (cfg.pengingat || {}).minum || {}, bt = (cfg.pengingat || {}).baterai || {};
   setVal('mi-aktif', mi.aktif !== false); setVal('mi-interval', mi.interval || 60); setVal('mi-mulai', mi.mulai || '07:00'); setVal('mi-selesai', mi.selesai || '14:00'); setVal('mi-sekolah', mi.hanyaSekolah !== false);
   setVal('bt-aktif', bt.aktif !== false); setVal('bt-batas', bt.batas || 20); setVal('bt-kritis', bt.kritis || 10);
@@ -54,10 +53,7 @@ function isiForm() {
   setVal('sh-lat', sh.lat ?? SH_BAWAAN.lat); setVal('sh-lon', sh.lon ?? SH_BAWAAN.lon);
   tampilSholat();
   const pt = cfg.pet || {};
-  $('#pet-karakter').innerHTML = '<option value="ikut">Sama dengan karakter pil</option>'
-    + Object.entries(window.KARAKTER).map(([id, k]) => `<option value="${id}">${esc(k.nama)}</option>`).join('')
-    + ((cfg.tampilan || {}).karakterKustom || []).map(k => `<option value="${esc(k.id)}">${esc(k.nama || 'Gambar sendiri')}</option>`).join('');
-  setVal('pet-aktif', pt.aktif !== false); setVal('pet-karakter', pt.karakter || 'ikut'); setVal('pet-ukuran', pt.ukuran || 90);
+  setVal('pet-aktif', pt.aktif !== false); setVal('pet-ukuran', pt.ukuran || 120);
   setVal('pet-kecepatan', pt.kecepatan || 'normal'); setVal('pet-bicara', pt.bicara !== false); setVal('pet-tidur', pt.tidurMalam !== false);
   const wg = cfg.widget || {};
   setVal('wg-aktif', wg.aktif !== false); setVal('wg-k-jam', (wg.kartu || {}).jam !== false); setVal('wg-k-sc', (wg.kartu || {}).sholatCuaca !== false); setVal('wg-k-jd', (wg.kartu || {}).jadwal !== false); setVal('wg-k-kal', (wg.kartu || {}).kalender !== false); setVal('wg-k-kh', (wg.kartu || {}).kelasHariIni !== false); setVal('wg-k-tg', (wg.kartu || {}).tugas !== false); setVal('wg-k-ct', (wg.kartu || {}).catatan !== false); setVal('wg-k-ut', (wg.kartu || {}).ulangTahun !== false); setVal('wg-k-mt', (wg.kartu || {}).motivasi !== false); $('#wg-motivasi').value = (cfg.motivasi || []).join('\n'); setVal('wg-kunci', !!wg.kunci); setVal('wg-op', wg.transparansi || 60);
@@ -70,7 +66,7 @@ function labelRange() {
   $('#lebarVal').textContent = $('#lebarRingkas').value + ' px';
   $('#opVal').textContent = $('#transparansi').value + '%';
   $('#wgOpVal').textContent = $('#wg-op').value + '%';
-  $('#petUkVal').textContent = $('#pet-ukuran').value + ' px';
+  $('#petUkVal').textContent = $('#pet-ukuran').value + ' px tinggi';
 }
 ['lebarRingkas', 'transparansi', 'wg-op', 'pet-ukuran'].forEach(id => $('#' + id).addEventListener('input', labelRange));
 
@@ -165,45 +161,8 @@ function contohPil() {
 }
 [...PK.map(k => 'pk-' + k), ...PKI.map(k => 'pk-i-' + k), 'pk-otomatis'].forEach(id => $('#' + id).addEventListener('change', contohPil));
 
-// ---------- Galeri karakter ----------
-let karId = 'oren';
-async function renderGaleriKar() {
-  const kustom = cfg.tampilan.karakterKustom || [];
-  const data = {};
-  for (const k of kustom) data[k.id] = await window.api.karakterData(k.id);
-  const item = [
-    ...Object.entries(window.KARAKTER).map(([id, k]) => ({ id, nama: k.nama, gbr: k.html })),
-    ...kustom.map(k => ({ id: k.id, nama: k.nama, gbr: data[k.id] ? `<img src="${data[k.id]}" alt="">` : '?', hapus: true })),
-    { id: 'none', nama: 'Tanpa karakter', gbr: '<span style="font-size:28px;line-height:56px;color:#b7ab9c">∅</span>' }
-  ];
-  $('#galeriKar').innerHTML = item.map(k => `<button type="button" data-id="${esc(k.id)}" class="${k.id === karId ? 'on' : ''}">
-      ${k.hapus ? `<span class="hapus" data-hapus="${esc(k.id)}" title="Hapus">✕</span>` : ''}<span class="gbr">${k.gbr}</span>${esc(k.nama)}</button>`).join('');
-}
-$('#galeriKar').addEventListener('click', async e => {
-  const h = e.target.closest('[data-hapus]');
-  if (h) {
-    e.stopPropagation();
-    if (!confirm('Hapus gambar karakter ini?')) return;
-    cfg = await window.api.karakterHapus(h.dataset.hapus);
-    if (karId === h.dataset.hapus) karId = window.karakterId(cfg.tampilan.karakter);
-    renderGaleriKar(); return;
-  }
-  const b = e.target.closest('button[data-id]'); if (!b) return;
-  karId = b.dataset.id; renderGaleriKar(); contohPil();
-});
-$('#unggahKar').addEventListener('click', () => $('#fileKar').click());
-$('#fileKar').addEventListener('change', async e => {
-  const f = e.target.files[0]; e.target.value = '';
-  if (!f) return;
-  if (f.size > 3 * 1024 * 1024) { alert('Ukuran gambar maksimal 3 MB.'); return; }
-  const dataUrl = await new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(f); });
-  try {
-    const item = await window.api.karakterSimpan(dataUrl, f.name.replace(/\.[^.]+$/, ''));
-    cfg = await window.api.getConfig();
-    karId = item.id; renderGaleriKar();
-    status('✓ Karakter diunggah dan langsung dipakai');
-  } catch (err) { alert(String(err.message || err).replace(/^Error invoking remote method[^:]*: (Error: )?/, '')); }
-});
+// ---------- Karakter: hanya kucing ----------
+const karId = 'kucing';
 $('#mapelList').innerHTML = MAPEL.map(m => `<option value="${m}">`).join('');
 
 // ---------- Jadwal ----------
@@ -371,7 +330,7 @@ function kumpulkan() {
   T_FIELDS.forEach(f => cfg.tampilan[f] = getVal(f));
   Object.assign(cfg.tampilan, bacaWarna(), {
     tema: temaId, aksenMapel: getVal('aksenMapel'),
-    karakter: karId, karakterTampil: getVal('karakterTampil'), karakterGerak: getVal('karakterGerak'),
+    karakter: 'kucing', karakterTampil: getVal('karakterTampil'), karakterGerak: getVal('karakterGerak'),
     pilKecil: bacaPilKecil(),
     beranda: { tata: beranda.tata, blok: beranda.blok.map(x => ({ id: x.id, on: !!x.on })) }
   });
@@ -394,7 +353,7 @@ function kumpulkan() {
     hari: [...tr.querySelectorAll('.hari-chk input:checked')].map(c => Number(c.value))
   })).filter(r => r.jam && r.teks);
   cfg.kaldik = bacaKaldik();
-  cfg.pet = { ...(cfg.pet || {}), aktif: getVal('pet-aktif'), karakter: getVal('pet-karakter') || 'ikut', ukuran: Number(getVal('pet-ukuran')) || 90, kecepatan: getVal('pet-kecepatan') || 'normal', bicara: getVal('pet-bicara'), tidurMalam: getVal('pet-tidur') };
+  cfg.pet = { ...(cfg.pet || {}), aktif: getVal('pet-aktif'), ukuran: Number(getVal('pet-ukuran')) || 120, kecepatan: getVal('pet-kecepatan') || 'normal', bicara: getVal('pet-bicara'), tidurMalam: getVal('pet-tidur') };
   cfg.pintasan = $$('#pintasanBody tr').map(tr => ({
     nama: tr.querySelector('[data-k=nama]').value.trim(),
     target: tr.querySelector('[data-k=target]').value.trim()

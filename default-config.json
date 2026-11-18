@@ -13,10 +13,9 @@
     "sudut": 135,
     "cahaya": false,
     "aksenMapel": true,
-    "karakter": "hantu",
+    "karakter": "kucing",
     "karakterTampil": true,
     "karakterGerak": true,
-    "karakterKustom": [],
     "pilKecil": {
       "karakter": true,
       "jam": true,
@@ -471,8 +470,7 @@
   ],
   "pet": {
     "aktif": true,
-    "karakter": "ikut",
-    "ukuran": 90,
+    "ukuran": 120,
     "kecepatan": "normal",
     "bicara": true,
     "tidurMalam": true

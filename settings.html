@@ -107,7 +107,7 @@
           <b>Isi pil kecil</b>
           <p class="hint" style="margin:4px 0 10px">Pilih apa saja yang tampil saat pil dalam mode kecil. Dengan <b>lebar otomatis</b>, pil melebar sendiri sesuai isinya sehingga tulisan tidak terpotong.</p>
           <div class="pk-grid">
-            <label class="chk"><input type="checkbox" id="pk-karakter"> Karakter</label>
+            <label class="chk"><input type="checkbox" id="pk-karakter"> Kucing</label>
             <label class="chk"><input type="checkbox" id="pk-jam"> Jam</label>
             <label class="chk"><input type="checkbox" id="pk-detik"> Detik</label>
             <label class="chk"><input type="checkbox" id="pk-sisa"> Sisa menit</label>
@@ -129,13 +129,11 @@
           </div>
         </div>
         <div class="card">
-          <b>Karakter</b>
-          <p class="hint" style="margin:4px 0 10px">Muncul di pil dan ikut melompat saat ada pengingat. Bisa juga memakai gambar sendiri (PNG, JPG, GIF bergerak, WEBP; maks. 3 MB).</p>
-          <div class="galeri kar" id="galeriKar"></div>
+          <b>Karakter kucing</b>
+          <p class="hint" style="margin:4px 0 10px">Kucing belang abu-abu muncul di pil (berkedip sendiri dan melompat saat ada pengingat) dan sebagai pet di atas taskbar (Pengaturan → Pet).</p>
           <div class="row-btn">
-            <button type="button" id="unggahKar">Unggah gambar sendiri…</button>
-            <input type="file" id="fileKar" accept="image/png,image/jpeg,image/gif,image/webp,image/svg+xml" hidden>
-            <label class="chk"><input type="checkbox" id="karakterTampil"> Tampilkan karakter</label>
+            <img src="assets/kucing/kedip_1.png" alt="Kucing" style="height:64px">
+            <label class="chk"><input type="checkbox" id="karakterTampil"> Tampilkan kucing di pil</label>
             <label class="chk"><input type="checkbox" id="karakterGerak"> Beranimasi (berayun &amp; melompat)</label>
           </div>
         </div>
@@ -321,8 +319,7 @@
         <p class="hint">Teman kecil yang berjalan di atas taskbar. <b>Klik</b> untuk menyapa, <b>klik dua kali</b> agar berputar, <b>seret</b> untuk mengangkat lalu lepaskan untuk melempar. Pet tidur di malam hari atau bila lama tidak disentuh (klik untuk membangunkan), menoleh ke arah kursor, dan sesekali mengingatkan: pelajaran mulai, waktu sholat, mau hujan, tugas jatuh tempo, ulang tahun siswa. Disembunyikan otomatis saat presentasi/layar penuh. <code>Ctrl+Alt+P</code> menampilkan/menyembunyikan.</p>
         <div class="card grid">
           <span>Tampilkan pet</span><label class="chk"><input type="checkbox" id="pet-aktif"> Aktif</label>
-          <span>Karakter</span><select id="pet-karakter"></select>
-          <span>Ukuran</span><span><input type="range" id="pet-ukuran" min="50" max="150" step="5"> <b id="petUkVal"></b></span>
+          <span>Ukuran</span><span><input type="range" id="pet-ukuran" min="70" max="220" step="10"> <b id="petUkVal"></b></span>
           <span>Kecepatan berjalan</span><select id="pet-kecepatan"><option value="pelan">Pelan</option><option value="normal">Normal</option><option value="cepat">Cepat</option></select>
           <span>Boleh berbicara (gelembung)</span><label class="chk"><input type="checkbox" id="pet-bicara"> Ya</label>
           <span>Tidur pukul 21.00–05.00</span><label class="chk"><input type="checkbox" id="pet-tidur"> Ya</label>
