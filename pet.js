@@ -161,10 +161,17 @@ function langkah(t) {
 
 // ---------- mouse ----------
 // Jendela tembus klik; saat kursor di atas gambar kucing, jendela menangkap mouse agar kucing bisa diklik/diangkat.
-let tangkap = false;
-function setTangkap(v) { if (v !== tangkap) { tangkap = v; window.api.petTangkap(v); } }
-img.addEventListener('mouseenter', () => setTangkap(true));
-img.addEventListener('mouseleave', () => { if (!pegang) setTangkap(false); });
+// Proses utama yang menyalakan/mematikan tembus-klik berdasarkan kotak gambar ini & posisi kursor.
+let kotakLalu = '';
+function kirimKotak() {
+  const r = img.getBoundingClientRect();
+  const k = { l: Math.round(r.left), t: Math.round(r.top), r: Math.round(r.right), b: Math.round(r.bottom) };
+  const kunci = `${k.l},${k.t},${k.r},${k.b}`;
+  if (kunci !== kotakLalu) { kotakLalu = kunci; window.api.petKotak(k); }
+}
+setInterval(kirimKotak, 50);
+window.api.onPetKursor(p => { mx = p.x; my = p.y; });
+const setTangkap = v => window.api.petTangkap(v);   // v = sedang dipegang
 
 const elus = { arah: 0, balik: [] };
 window.addEventListener('mousemove', e => {
@@ -187,7 +194,7 @@ img.addEventListener('pointerdown', e => {
   if (e.button !== 0) return;
   e.preventDefault(); try { img.setPointerCapture(e.pointerId); } catch { /* lanjut */ }
   pegang = { x0: e.clientX, y0: e.clientY, jejak: [], gerak: false, ayun: 0 };
-  disentuh = Date.now();
+  disentuh = Date.now(); setTangkap(true);
 });
 window.addEventListener('pointermove', e => {
   if (!pegang) return;
@@ -211,8 +218,7 @@ function lepas(e) {
     vy = a && b ? Math.max(-900, Math.min(1500, -(b.y - a.y) / dt)) : 0;
     setKeadaan('udara');
   } else klik();
-  const r = img.getBoundingClientRect();
-  if (!(e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom)) setTangkap(false);
+  setTangkap(false);
 }
 window.addEventListener('pointerup', lepas);
 window.addEventListener('pointercancel', lepas);

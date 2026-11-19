@@ -500,10 +500,23 @@ function togglePet() {
   if (petWin.isVisible()) { petSembunyiManual = true; petWin.hide(); }
   else { petSembunyiManual = false; tempatkanPet(); petWin.showInactive(); }
 }
-ipcMain.on('pet:tangkap', (e, v) => {
-  if (!petWin || petWin.isDestroyed() || BrowserWindow.fromWebContents(e.sender) !== petWin) return;
-  petWin.setIgnoreMouseEvents(!v, { forward: true });
-});
+// Jendela pet tembus klik. Proses utama memeriksa posisi kursor tiap 40 ms: bila kursor di atas kotak
+// gambar kucing (dikirim pet.js) atau kucing sedang dipegang, jendela menangkap mouse; selain itu tembus.
+// (Tidak bergantung pada penerusan mousemove Windows yang kadang tidak sampai ke jendela non-fokus.)
+let petKotak = null, petPegang = false, petMenangkap = false;
+const dariPet = e => petWin && !petWin.isDestroyed() && BrowserWindow.fromWebContents(e.sender) === petWin;
+ipcMain.on('pet:tangkap', (e, v) => { if (dariPet(e)) { petPegang = !!v; periksaKursorPet(); } });
+ipcMain.on('pet:kotak', (e, k) => { if (dariPet(e)) petKotak = k; });
+function periksaKursorPet() {
+  if (!petWin || petWin.isDestroyed() || !petWin.isVisible()) return;
+  const c = screen.getCursorScreenPoint(), b = petWin.getBounds(), k = petKotak;
+  const px = c.x - b.x, py = c.y - b.y, m = 4;
+  const diAtas = !!k && px >= k.l - m && px <= k.r + m && py >= k.t - m && py <= k.b + m;
+  const tangkap = diAtas || petPegang;
+  if (tangkap !== petMenangkap) { petMenangkap = tangkap; petWin.setIgnoreMouseEvents(!tangkap, { forward: true }); }
+  if (!tangkap && px >= 0 && px <= b.width && py >= -300 && py <= b.height) petWin.webContents.send('pet:kursor', { x: px, y: py });
+}
+setInterval(periksaKursorPet, 40);
 
 // ---------- BukuKelas ----------
 async function initBukuKelas() {

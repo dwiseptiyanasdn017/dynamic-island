@@ -32,6 +32,8 @@ contextBridge.exposeInMainWorld('api', {
   defaultConfig: () => ipcRenderer.invoke('cfg:bawaan'),
   statusLapisan: () => ipcRenderer.invoke('widget:lapisan'),
   petTangkap: v => ipcRenderer.send('pet:tangkap', !!v),
+  petKotak: k => ipcRenderer.send('pet:kotak', k),
+  onPetKursor: fn => ipcRenderer.on('pet:kursor', (_e, p) => fn(p)),
   widgetReset: () => ipcRenderer.send('widget:reset'),
   versi: () => ipcRenderer.invoke('update:status'),
   onUpdate: cb => ipcRenderer.on('update:status', (e, s) => cb(s)),

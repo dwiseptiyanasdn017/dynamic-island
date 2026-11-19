@@ -21,6 +21,7 @@ Pil hitam di atas tengah layar, mirip Dynamic Island iPhone. Arahkan kursor ke p
 - Kucing digambar dari sprite (`assets/kucing`): duduk bernapas, berkedip (kadang dua kali), menoleh ke kursor, berjalan, kadang menghampiri kursor, mengantuk lalu tidur (malam hari atau lama tak disentuh).
 - Interaksi: **klik** = senang melompat, **klik dua kali** = berputar lalu pusing, **seret** = tergantung kaget, **lempar** = jatuh & memantul, **gosok kursor bolak-balik di kepalanya** = dielus (purr, hati).
 - Pengingat tetap sama: pelajaran, istirahat, sholat, hujan (payung), tugas, ulang tahun siswa (topi pesta), sapaan.
+- Versi 1.15.1: kucing kini pasti bisa dipegang — posisi kursor diperiksa langsung oleh aplikasi (tidak lagi bergantung pada penerusan gerakan mouse dari Windows).
 - Kucing di pil ikut berkedip. Ukuran pet di Pengaturan → Pet kini = tinggi kucing (70–220 px, bawaan 120).
 
 ## Pet interaktif (versi 1.14)
