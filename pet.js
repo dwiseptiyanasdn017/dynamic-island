@@ -140,8 +140,10 @@ function langkah(t) {
   } else if (keadaan === 'pusing') {
     atas = gambar('kedip_3', x, lantaiY, { rot: Math.sin(t / 120) * 7 * Math.max(0, 1 - umur / 1700), sx: 1 + remas * .2, sy: 1 - remas * .2 });
   } else if (keadaan === 'putar') {
-    const p = Math.min(1, umur / 700);
-    atas = gambar('senang_2', x, lantaiY - Math.sin(p * Math.PI) * 40 * s / .46, { rot: p * 360 });
+    // berputar di tempat seperti kucing mengejar ekor: badan berbalik kiri-kanan 2 putaran (sumbu tegak), sedikit melompat
+    const p = Math.min(1, umur / 1000), c = Math.cos(p * 4 * Math.PI);
+    atas = gambar('jalan_' + (1 + Math.floor(t / 80) % 5), x, lantaiY - Math.abs(Math.sin(p * 2 * Math.PI)) * 6 * s / .46,
+      { flip: (c < 0 ? -1 : 1) * arah, sx: .35 + .65 * Math.abs(c) });
   } else if (keadaan === 'mendarat') {
     atas = gambar('kedip_1', x, lantaiY, { sx: 1 + remas * .22, sy: 1 - remas * .22 });
   } else {
@@ -229,7 +231,7 @@ window.addEventListener('blur', () => { if (pegang) lepas({ clientX: -1, clientY
 let tKlik = null;
 function klik() {
   disentuh = Date.now();
-  if (tKlik) { clearTimeout(tKlik); tKlik = null; setKeadaan('putar', 700); partikel('✨', 5); bicara('Wiiii! 🌀', 1500); return; }
+  if (tKlik) { clearTimeout(tKlik); tKlik = null; setKeadaan('putar', 1000); partikel('✨', 5); bicara('Wiiii! 🌀', 1500); return; }
   tKlik = setTimeout(() => {
     tKlik = null;
     if (keadaan === 'tidur' || keadaan === 'ngantuk') { setKeadaan('menguap', 1100); bicara(pilih(['Hoaam… sudah pagi? 😪', 'Eh, aku ketiduran 😅', 'Lima menit lagi… 😴']), 3000); return; }

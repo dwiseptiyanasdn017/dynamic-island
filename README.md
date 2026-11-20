@@ -23,6 +23,7 @@ Pil hitam di atas tengah layar, mirip Dynamic Island iPhone. Arahkan kursor ke p
 - Pengingat tetap sama: pelajaran, istirahat, sholat, hujan (awan gerimis sebentar), tugas, ulang tahun siswa (topi pesta), sapaan.
 - Versi 1.15.1: kucing kini pasti bisa dipegang — posisi kursor diperiksa langsung oleh aplikasi (tidak lagi bergantung pada penerusan gerakan mouse dari Windows).
 - Versi 1.15.2: kucing pindah ke lapisan desktop seperti widget (di belakang aplikasi, tampil di depan kartu widget). Payung diganti awan gerimis kecil yang muncul sebentar saat pengingat hujan.
+- Versi 1.15.3: klik dua kali = kucing berputar di tempat seperti mengejar ekor (berbalik kiri-kanan dua kali), bukan lagi berguling.
 - Kucing di pil ikut berkedip. Ukuran pet di Pengaturan → Pet kini = tinggi kucing (70–220 px, bawaan 120).
 
 ## Pet interaktif (versi 1.14)
