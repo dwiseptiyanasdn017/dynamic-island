@@ -3,7 +3,7 @@
    Jendela transparan selebar layar di atas taskbar; hanya gambar kucing yang menangkap mouse.
    Perilaku: duduk bernapas & berkedip, menoleh ke kursor, berjalan, kadang menghampiri kursor, tidur (malam / lama tak disentuh).
    Interaksi: klik = senang, klik dua kali = berputar lalu pusing, seret = tergantung kaget, lempar = jatuh & memantul, elus = keenakan.
-   Pengingat lewat gelembung: pelajaran, istirahat, sholat, hujan (payung), tugas, ulang tahun siswa (topi pesta), sapaan. */
+   Pengingat lewat gelembung: pelajaran, istirahat, sholat, hujan (awan gerimis sebentar), tugas, ulang tahun siswa (topi pesta), sapaan. */
 const B = window.Bersama, META = window.SPRITE_KUCING;
 const $ = s => document.querySelector(s);
 const pet = $('#pet'), img = $('#gambar'), gelembung = $('#gelembung'), aksesori = $('#aksesori'), efek = $('#efek'), bayangan = $('#bayangan');
@@ -68,7 +68,7 @@ function gambar(nama, ax0, ay0, o = {}) {
 }
 
 // ---------- setiap frame ----------
-let tLalu = performance.now(), tZ = 0, tHati = 0;
+let tLalu = performance.now(), tZ = 0, tHati = 0, atasKini = 0;
 function langkah(t) {
   requestAnimationFrame(langkah);
   if (!cfg) return;
@@ -148,12 +148,13 @@ function langkah(t) {
     atas = gambar(mata, x, lantaiY, { sx: 1 + .012 * napas, sy: 1 - .016 * napas });
   }
 
+  atasKini = atas;
   bayangan.style.width = lebarBayangan + 'px'; bayangan.style.left = (x - lebarBayangan / 2) + 'px';
   bayangan.style.top = (LANTAI - 5) + 'px'; bayangan.style.opacity = opBayangan;
   aksesori.style.left = x + 'px'; aksesori.style.top = (atas + 6) + 'px'; aksesori.style.fontSize = (TINGGI * .3) + 'px';
   if (!gelembung.hidden) {
     gelembung.style.left = Math.max(130, Math.min(W - 130, x)) + 'px';
-    gelembung.style.top = Math.max(4, atas - gelembung.offsetHeight - (aksesori.textContent ? TINGGI * .3 + 14 : 12)) + 'px';
+    gelembung.style.top = Math.max(4, atas - gelembung.offsetHeight - (aksesori.textContent ? TINGGI * .3 + 14 : 12) - (efek.querySelector('.awan:not(.pergi)') ? TINGGI * .8 : 0)) + 'px';
   }
   if (keadaan === 'tidur' && t - tZ > 1600) { tZ = t; partikel('z', 1, 'zzz', .55); }
   if (keadaan === 'dielus' && t - tHati > 420) { tHati = t; partikel(pilih(['💖', '💜', '💕']), 1); }
@@ -241,7 +242,25 @@ function klik() {
 const sudah = new Set();
 let sapaanBerikut = Date.now() + acak(8, 15) * 60 * 1000, mauHujan = false, adaUlangTahun = false;
 function sekali(kunci, fn) { if (!sudah.has(kunci)) { sudah.add(kunci); fn(); } }
-function aturAksesori() { aksesori.textContent = keadaan === 'tidur' ? '' : (adaUlangTahun ? '🥳' : (mauHujan ? '☂️' : '')); }
+function aturAksesori() { aksesori.textContent = keadaan === 'tidur' ? '' : (adaUlangTahun ? '🥳' : ''); }
+// Mau hujan: kucing berhenti & menengadah, awan kecil turun gerimis di atas kepalanya beberapa detik, lalu hilang.
+function awanHujan() {
+  if (keadaan === 'tidur' || keadaan === 'ngantuk') setKeadaan('menguap', 1100); else setKeadaan('diam', 7000);
+  const awan = document.createElement('div');
+  awan.className = 'awan'; awan.textContent = '☁️';
+  awan.style.left = x + 'px'; awan.style.top = (atasKini - TINGGI * .55) + 'px'; awan.style.fontSize = (TINGGI * .38) + 'px';
+  efek.appendChild(awan);
+  let i = 0;
+  const gerimis = setInterval(() => {
+    const t = document.createElement('div');
+    t.className = 'tetes'; t.textContent = '💧';
+    t.style.left = (x + acak(-TINGGI * .18, TINGGI * .18)) + 'px'; t.style.top = (atasKini - TINGGI * .3) + 'px';
+    t.style.setProperty('--jatuh', (TINGGI * .5) + 'px');
+    efek.appendChild(t); setTimeout(() => t.remove(), 900);
+    if (++i > 22) clearInterval(gerimis);
+  }, 260);
+  setTimeout(() => { awan.classList.add('pergi'); setTimeout(() => awan.remove(), 700); }, 6500);
+}
 function cekPeristiwa() {
   if (!cfg) return;
   const d = new Date(), hari = B.tglStr(d), n = d.getHours() * 60 + d.getMinutes();
@@ -264,7 +283,7 @@ function cekPeristiwa() {
   }
   const jamIni = cuaca && Array.isArray(cuaca.jam) ? cuaca.jam.find(h => new Date(h.t).getHours() === d.getHours() && B.tglStr(new Date(h.t)) === hari) : null;
   mauHujan = !!(jamIni && jamIni.hujan >= 50);
-  if (mauHujan) sekali(`${hari}|h${Math.floor(d.getHours() / 2)}`, () => bicara(`Sedia payung ya, mau hujan ${jamIni.hujan}% ☔`, 6000));
+  if (mauHujan) sekali(`${hari}|h${Math.floor(d.getHours() / 2)}`, () => { awanHujan(); bicara(`Sedia payung ya, mau hujan ${jamIni.hujan}% ☔`, 6000); });
   if (n >= 7 * 60 && Array.isArray(cfg.tugas)) {
     const jatuh = cfg.tugas.filter(tg => !tg.selesai && tg.tenggat && tg.tenggat <= hari);
     if (jatuh.length) sekali(`${hari}|tugas`, () => bicara(`Ada ${jatuh.length} tugas yang jatuh tempo ✅`, 7000));

@@ -210,7 +210,7 @@ function aturLayarPenuh(status) {
   } else if ((!penuh || !aktif) && sembunyiPresentasi) {
     sembunyiPresentasi = false;
     if (!sembunyiManual) island.showInactive();
-    if (petWin && !petSembunyiManual) petWin.showInactive();
+    if (petWin && !petSembunyiManual) tampilDiBawah(petWin);
   }
 }
 
@@ -291,7 +291,11 @@ function keBawah(win) {
   } catch (e) { lapisan.panggilanGagal++; lapisan.galat = String(e && e.message || e); return false; }
 }
 // Jaga terus: bila ada yang menaikkan kartu (mis. Windows saat ukuran berubah), turunkan lagi dalam ±1 detik.
-setInterval(() => { for (const w of Object.values(widgets)) if (w.isVisible()) keBawah(w); }, 1000);
+// Pet diturunkan lebih dulu, lalu kartu, sehingga kucing tetap tampil di depan kartu widget.
+setInterval(() => {
+  if (petWin && !petWin.isDestroyed() && petWin.isVisible()) keBawah(petWin);
+  for (const w of Object.values(widgets)) if (w.isVisible()) keBawah(w);
+}, 1000);
 ipcMain.handle('widget:lapisan', () => ({ ...lapisan, aktif: !!user32 }));
 /** Tampilkan kartu tanpa merebut fokus, lalu langsung turunkan ke lapisan paling bawah. */
 function tampilDiBawah(win) { if (!win || win.isDestroyed()) return; win.showInactive(); keBawah(win); }
@@ -477,13 +481,13 @@ function createPet() {
     ...posisiPet(),
     frame: false, transparent: true, backgroundColor: '#00000000', resizable: false, movable: false,
     minimizable: false, maximizable: false, fullscreenable: false, skipTaskbar: true, hasShadow: false,
-    focusable: false, alwaysOnTop: true, show: false, title: 'Pet Dynamic Island',
+    focusable: false, alwaysOnTop: false, show: false, title: 'Pet Dynamic Island',
     webPreferences: { preload: path.join(__dirname, 'preload.js'), contextIsolation: true, nodeIntegration: false, backgroundThrottling: false }
   });
-  petWin.setAlwaysOnTop(true, 'floating');
   petWin.setIgnoreMouseEvents(true, { forward: true });
   petWin.loadFile('pet.html');
-  petWin.once('ready-to-show', () => { if (petWin && !sembunyiPresentasi && !petSembunyiManual) petWin.showInactive(); });
+  // Di lapisan desktop seperti widget: di belakang semua aplikasi, terlihat saat desktop tampak.
+  petWin.once('ready-to-show', () => { if (petWin && !sembunyiPresentasi && !petSembunyiManual) tampilDiBawah(petWin); });
   petWin.on('close', e => { if (!quitting) e.preventDefault(); });
   petWin.on('closed', () => { petWin = null; });
 }
@@ -498,7 +502,7 @@ function togglePet() {
   if (!petAktif()) { config.pet = { ...(config.pet || {}), aktif: true }; saveConfigFile(); petSembunyiManual = false; aturPet(); broadcast('cfg:updated', config); return; }
   if (!petWin) return;
   if (petWin.isVisible()) { petSembunyiManual = true; petWin.hide(); }
-  else { petSembunyiManual = false; tempatkanPet(); petWin.showInactive(); }
+  else { petSembunyiManual = false; tempatkanPet(); tampilDiBawah(petWin); }
 }
 // Jendela pet tembus klik. Proses utama memeriksa posisi kursor tiap 40 ms: bila kursor di atas kotak
 // gambar kucing (dikirim pet.js) atau kucing sedang dipegang, jendela menangkap mouse; selain itu tembus.

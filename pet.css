@@ -13,7 +13,7 @@ body.pegang #pet img { cursor: grabbing; }
 #gelembung::after { content: ''; position: absolute; left: 50%; bottom: -6px; width: 12px; height: 12px; background: #fff; transform: translateX(-50%) rotate(45deg); border-radius: 2px; }
 @keyframes muncul { from { opacity: 0; translate: 0 6px; } to { opacity: 1; translate: 0 0; } }
 
-/* payung saat mau hujan, topi pesta saat ada siswa berulang tahun */
+/* topi pesta saat ada siswa berulang tahun */
 #aksesori { position: absolute; transform: translate(-50%, -100%); line-height: 1; pointer-events: none; z-index: 4; }
 
 #efek { position: absolute; inset: 0; pointer-events: none; }
@@ -21,3 +21,10 @@ body.pegang #pet img { cursor: grabbing; }
 .partikel.zzz { font-size: 16px; font-weight: 800; color: #6d28d9; animation: naikZ 2.4s ease-out forwards; }
 @keyframes naik { 0% { opacity: 0; transform: translate(0,0) scale(.6); } 15% { opacity: 1; } 100% { opacity: 0; transform: translate(var(--dx, 0), -70px) scale(1.15); } }
 @keyframes naikZ { 0% { opacity: 0; } 20% { opacity: .9; } 100% { opacity: 0; transform: translate(28px, -52px) scale(1.25); } }
+
+/* mau hujan: awan kecil + gerimis sebentar di atas kepala */
+.awan { position: absolute; transform: translate(-50%, -50%); line-height: 1; animation: awanMasuk .6s ease-out; transition: opacity .6s, translate .6s; }
+.awan.pergi { opacity: 0; translate: 0 -14px; }
+@keyframes awanMasuk { from { opacity: 0; translate: 0 -14px; } to { opacity: 1; translate: 0 0; } }
+.tetes { position: absolute; font-size: 11px; animation: tetes .9s ease-in forwards; }
+@keyframes tetes { 0% { opacity: 0; transform: translateY(0); } 20% { opacity: 1; } 100% { opacity: 0; transform: translateY(var(--jatuh, 50px)); } }
